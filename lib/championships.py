@@ -2,6 +2,11 @@ import pandas as pd
 from lib.date_parsers import dateparser1819, dateparser1718
 
 
+def corrections(df):
+    df.replace('Olympiacos Piraeus', 'Olympiakos', inplace=True)
+    return df
+
+
 def load_greece():
     load = pd.read_csv('https://www.football-data.co.uk/mmz4281/1819/G1.csv',
                        parse_dates=['Date'], index_col='Date', date_parser=dateparser1819)
@@ -18,7 +23,6 @@ def load_greece():
     df3['period'] = '1920'
     df = df.append(df3)
 
-    df.replace('Olympiacos Piraeus', 'Olympiakos', inplace=True)
-
+    df = corrections(df)
     df.sort_index(inplace=True)
     return df

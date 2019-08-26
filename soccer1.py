@@ -14,6 +14,7 @@ for team in championship_teams(df):
     # results['team'] = team
     team_dfs[team] = results
 print(team_dfs['Atromitos'])
+print(team_dfs['Olympiakos'])
 
 
 print(period_stats(team_dfs['Panionios'], '1819'))
