@@ -11,6 +11,17 @@ def championship_teams(df):
     return np.unique(np.concatenate((df.HomeTeam.unique(), df.AwayTeam.unique())))
 
 
+def create_team_df_dict(dataframe):
+    team_dfs = {}
+    for team in championship_teams(dataframe):
+        team_df = create_team_df(dataframe, team)
+        streaks = update_draw_streaks(team_df, verbose=0)
+        results = update_results(streaks, team)
+        # results['team'] = team
+        team_dfs[team] = results
+    return team_dfs
+
+
 def update_results(team_df, team):
     team_df['result'] = ''
     for index, row in team_df.iterrows():
