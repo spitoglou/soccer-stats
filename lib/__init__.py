@@ -57,3 +57,14 @@ def update_draw_streaks(team_df, verbose=0):
         if verbose > 1:
             print(count_draw, count_no_draw, row['FTR'], memory)
     return team_df
+
+
+def period_stats(team_df, period='1920'):
+    wins = team_df.query(
+        'result == "W" and period == "' + period + '"').shape[0]
+    draws = team_df.query(
+        'result == "D" and period == "' + period + '"').shape[0]
+    losses = team_df.query(
+        'result == "L" and period == "' + period + '"').shape[0]
+    points = wins * 3 + draws * 1
+    return (wins, draws, losses, points)

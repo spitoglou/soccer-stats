@@ -1,7 +1,7 @@
 # import pandas as pd
 # import numpy as np
 from lib.championships import load_greece
-from lib import update_draw_streaks, create_team_df, championship_teams, update_results
+from lib import update_draw_streaks, create_team_df, championship_teams, update_results, period_stats
 
 
 df = load_greece()
@@ -14,17 +14,6 @@ for team in championship_teams(df):
     # results['team'] = team
     team_dfs[team] = results
 print(team_dfs['Atromitos'])
-
-
-def period_stats(team_df, period='1920'):
-    wins = team_df.query(
-        'result == "W" and period == "' + period + '"').shape[0]
-    draws = team_df.query(
-        'result == "D" and period == "' + period + '"').shape[0]
-    losses = team_df.query(
-        'result == "L" and period == "' + period + '"').shape[0]
-    points = wins * 3 + draws * 1
-    return (wins, draws, losses, points)
 
 
 print(period_stats(team_dfs['Panionios'], '1819'))
