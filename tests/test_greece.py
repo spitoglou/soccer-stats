@@ -16,3 +16,11 @@ def test_team_dfs():
     assert points == 38
     olympiakos = team_dfs['Olympiakos']
     assert olympiakos.shape[0] == 61
+
+
+def test_team_stats():
+    from lib.championships import team_stats
+    team_dfs = bootstrap_greece()
+    new = team_stats(team_dfs)
+    assert new.loc['Asteras Tripolis'].MaxNoDraw == 11.0
+    assert new.loc['AEK']['1718_draws'] == 7.0

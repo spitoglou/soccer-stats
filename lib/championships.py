@@ -1,5 +1,8 @@
 import pandas as pd
 from lib.date_parsers import dateparser1819, dateparser1718
+from lib import period_stats
+
+PERIODS = ['1718', '1819', '1920']
 
 
 def corrections(df):
@@ -25,4 +28,32 @@ def load_greece():
 
     df = corrections(df)
     df.sort_index(inplace=True)
+    return df
+
+
+def team_stats(team_dfs, verbose=0):
+    df = pd.DataFrame()
+    for key, value in team_dfs.items():
+        team_dict = {}
+        team_dict['Name'] = key
+        a = team_dfs[key]
+        a.replace('', 0, inplace=True)
+        team_dict.update({
+            'MaxNoDraw': a['count_no_draw'].max(),
+            'CurrentNoDraw': a.iloc[-1, :]['count_no_draw']
+        })
+        for period in PERIODS:
+            wins, draws, losses, points = period_stats(a, period)
+            team_dict.update({
+                period + '_wins': wins,
+                period + '_draws': draws,
+                period + '_losses': losses,
+                period + '_points': points
+            })
+        df = df.append(team_dict, ignore_index=True)
+        if verbose > 1:
+            print(team_dict)
+    df.set_index('Name', inplace=True)
+    if verbose > 0:
+        print(df)
     return df
