@@ -3,35 +3,51 @@ from lib.date_parsers import dateparser1819, dateparser1718
 from lib import period_stats
 
 PERIODS = ['1718', '1819', '1920']
+COUNTRIES = {
+    'Greece': 'G1',
+    'England': 'E0',
+    'Italy': 'I1'
+}
+FIELDS = ['HomeTeam', 'AwayTeam', 'FTR']
+CURRENT_PERIOD = '1920'
 
 
-def corrections(df):
+def corrected(df):
     df.replace('Olympiacos Piraeus', 'Olympiakos', inplace=True)
-    return df
-
-
-def load_greece():
-    load = pd.read_csv('https://www.football-data.co.uk/mmz4281/1819/G1.csv',
-                       parse_dates=['Date'], index_col='Date', date_parser=dateparser1819)
-    df = load[['HomeTeam', 'AwayTeam', 'FTR']].copy()
-    df['period'] = '1819'
-    load2 = pd.read_csv('https://www.football-data.co.uk/mmz4281/1718/G1.csv',
-                        parse_dates=['Date'], index_col='Date', date_parser=dateparser1718)
-    df2 = load2[['HomeTeam', 'AwayTeam', 'FTR']].copy()
-    df2['period'] = '1718'
-    df = df.append(df2)
-    load3 = pd.read_csv('https://www.football-data.co.uk/mmz4281/1920/G1.csv',
-                        parse_dates=['Date'], index_col='Date', date_parser=dateparser1819)
-    df3 = load3[['HomeTeam', 'AwayTeam', 'FTR']].copy()
-    df3['period'] = '1920'
-    df = df.append(df3)
-
-    df = corrections(df)
     df.sort_index(inplace=True)
     return df
 
 
-def team_stats(team_dfs, verbose=0):
+def load_dataset(country, period, dateparser=dateparser1819):
+    load = pd.read_csv('https://www.football-data.co.uk/mmz4281/' + period + '/' + COUNTRIES[country] + '.csv',
+                       parse_dates=['Date'], index_col='Date', date_parser=dateparser)
+    df = load[FIELDS].copy()
+    df['period'] = period
+    return df
+
+
+def load_greece():
+    df = load_dataset('Greece', '1819')
+    df = df.append(load_dataset('Greece', '1718', dateparser1718))
+    df = df.append(load_dataset('Greece', '1920'))
+    return corrected(df)
+
+
+def load_england():
+    df = load_dataset('England', '1819')
+    df = df.append(load_dataset('England', '1718'))
+    df = df.append(load_dataset('England', '1920'))
+    return corrected(df)
+
+
+def load_italy():
+    df = load_dataset('Italy', '1819')
+    df = df.append(load_dataset('Italy', '1718', dateparser1718))
+    df = df.append(load_dataset('Italy', '1920'))
+    return corrected(df)
+
+
+def team_stats(team_dfs, sort_by='current_period_pts', verbose=0):
     df = pd.DataFrame()
     for key, value in team_dfs.items():
         team_dict = {}
@@ -54,6 +70,8 @@ def team_stats(team_dfs, verbose=0):
         if verbose > 1:
             print(team_dict)
     df.set_index('Name', inplace=True)
+    if sort_by == 'current_period_pts':
+        df.sort_values(by=[CURRENT_PERIOD + '_points'], inplace=True, ascending=False)
     if verbose > 0:
         print(df)
     return df
