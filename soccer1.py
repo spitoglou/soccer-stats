@@ -1,7 +1,7 @@
 # import pandas as pd
 # import numpy as np
-from lib.championships import load_greece, load_england, load_italy, team_stats
-from lib import period_stats, create_team_df_dict
+from sp_soccer_lib.championships import load_greece, load_england, load_italy, team_stats
+from sp_soccer_lib import period_stats, create_team_df_dict
 
 
 df = load_greece()

@@ -1,6 +1,6 @@
 import pandas as pd
-from lib.date_parsers import dateparser1819, dateparser1718
-from lib import period_stats
+from sp_soccer_lib.date_parsers import dateparser1819, dateparser1718
+from sp_soccer_lib import period_stats
 
 PERIODS = ['1718', '1819', '1920']
 COUNTRIES = {
