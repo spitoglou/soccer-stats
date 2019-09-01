@@ -47,6 +47,17 @@ def load_italy():
     return corrected(df)
 
 
+def load_country(country='greece'):
+    if country == 'greece':
+        return load_greece()
+    elif country == 'italy':
+        return load_italy()
+    elif country == 'england':
+        return load_england()
+    else:
+        raise Exception('Not Found Country!')
+
+
 def team_stats(team_dfs, sort_by='current_period_pts', verbose=0):
     df = pd.DataFrame()
     for key, value in team_dfs.items():
