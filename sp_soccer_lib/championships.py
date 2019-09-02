@@ -6,7 +6,10 @@ PERIODS = ['1718', '1819', '1920']
 COUNTRIES = {
     'Greece': 'G1',
     'England': 'E0',
-    'Italy': 'I1'
+    'Italy': 'I1',
+    'Spain': 'SP1',
+    'Germany': 'D1',
+    'France': 'F1'
 }
 FIELDS = ['HomeTeam', 'AwayTeam', 'FTR']
 CURRENT_PERIOD = '1920'
@@ -47,6 +50,27 @@ def load_italy():
     return corrected(df)
 
 
+def load_spain():
+    df = load_dataset('Spain', '1819')
+    df = df.append(load_dataset('Spain', '1718', dateparser1718))
+    df = df.append(load_dataset('Spain', '1920'))
+    return corrected(df)
+
+
+def load_germany():
+    df = load_dataset('Germany', '1819')
+    df = df.append(load_dataset('Germany', '1718', dateparser1718))
+    df = df.append(load_dataset('Germany', '1920'))
+    return corrected(df)
+
+
+def load_france():
+    df = load_dataset('France', '1819')
+    df = df.append(load_dataset('France', '1718', dateparser1718))
+    df = df.append(load_dataset('France', '1920'))
+    return corrected(df)
+
+
 def load_country(country='greece'):
     if country == 'greece':
         return load_greece()
@@ -54,6 +78,12 @@ def load_country(country='greece'):
         return load_italy()
     elif country == 'england':
         return load_england()
+    elif country == 'spain':
+        return load_spain()
+    elif country == 'germany':
+        return load_germany()
+    elif country == 'france':
+        return load_france()
     else:
         raise Exception('Not Found Country!')
 
