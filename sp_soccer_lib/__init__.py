@@ -1,3 +1,4 @@
+
 import numpy as np
 
 
@@ -79,3 +80,31 @@ def period_stats(team_df, period='1920'):
         'result == "L" and period == "' + period + '"').shape[0]
     points = wins * 3 + draws * 1
     return (wins, draws, losses, points)
+
+
+def no_draw_frequencies(country, specific_teams=None):
+    from .championships import load_country
+    df = load_country(country)
+    team_dfs = create_team_df_dict(df)
+    no_draw_distribution = []
+    if specific_teams:
+        teams = specific_teams
+    else:
+        teams = championship_teams(df)
+    for team in teams:
+        # pp.pprint(team_dfs[team])
+        placeholder = 'start'
+        for (index_label, row_series) in team_dfs[team].iterrows():
+            # print(index_label, row_series['count_no_draw'])
+            if placeholder != 'start' and row_series['count_no_draw'] == '':
+                if placeholder == '':
+                    no_draw_distribution.append(0)
+                    # print('Added 0')
+                else:
+                    no_draw_distribution.append(placeholder)
+                    # print('Added ', placeholder)
+                placeholder = ''
+            else:
+                placeholder = row_series['count_no_draw']
+    # pp.pprint(no_draw_distribution)
+    return no_draw_distribution

@@ -1,11 +1,12 @@
 # handout: begin-exclude
-# import pandas as pd
+import pandas as pd
+import matplotlib.pyplot as plt
 # import numpy as np
 
 import handout
 from sp_soccer_lib.championships import load_england, load_italy, team_stats, load_country
 from sp_soccer_lib.handout_helpers import style, get_country_header, make_link
-from sp_soccer_lib import create_team_df_dict, championship_teams
+from sp_soccer_lib import create_team_df_dict, championship_teams, no_draw_frequencies
 
 
 countries = ['greece', 'italy', 'england', 'spain', 'germany', 'france']
@@ -29,6 +30,18 @@ for country in countries:
     columns_to_show = ['1920_wins', '1920_draws', '1920_losses',
                        '1920_points', 'CurrentNoDraw', 'MaxNoDraw', 'link']
     doc.add_html(stats.to_html(columns=columns_to_show, escape=False))
+
+    freq = no_draw_frequencies(country)
+    series = pd.Series(freq)
+    counts = series.value_counts()
+    doc.add_text(' ')
+    doc.add_text(dict(counts))
+    table = pd.Series(dict(counts)).to_frame()
+    doc.add_html(table.sort_index().to_html())
+    fig, ax = plt.subplots(figsize=(3, 2))
+    ax.hist(series)
+    doc.add_figure(fig, width=0.6)
+
     doc.show()
 
     teams = championship_teams(df)
@@ -48,6 +61,17 @@ for country in countries:
             team, '<b>{0}</b>'.format(team)
         )
         doc.add_html(team_html)
+        freq = no_draw_frequencies(country, [team])
+        series = pd.Series(freq)
+        counts = series.value_counts()
+        doc.add_text(' ')
+        doc.add_text(dict(counts))
+        table = pd.Series(dict(counts)).to_frame()
+        doc.add_html(table.sort_index().to_html())
+        fig, ax = plt.subplots(figsize=(3, 2))
+        ax.hist(series)
+        doc.add_figure(fig, width=0.6)
+
         doc.show()
 
 
