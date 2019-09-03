@@ -16,12 +16,22 @@ CURRENT_PERIOD = '1920'
 
 
 def corrected(df):
+    ''' ### Correct possible team misnomers and sort dataframe '''
     df.replace('Olympiacos Piraeus', 'Olympiakos', inplace=True)
     df.sort_index(inplace=True)
     return df
 
 
 def load_dataset(country, period, dateparser=dateparser1819):
+    ''' ### Load csv data from remote site.
+
+        Parameters:
+
+            country (str): country to load data from
+            period (str): championship start-end years (eg "1920" fror 2019-2020 period)
+            dateparser (function): choose the way to parse the dates
+                (some csv files have dd/dd/yyyy and others dd/mm/yy)
+    '''
     load = pd.read_csv('https://www.football-data.co.uk/mmz4281/' + period + '/' + COUNTRIES[country] + '.csv',
                        parse_dates=['Date'], index_col='Date', date_parser=dateparser)
     df = load[FIELDS].copy()
@@ -72,6 +82,12 @@ def load_france():
 
 
 def load_country(country='greece'):
+    ''' ### Load country proxy function
+
+        Parameters:
+
+            country (str): Country name
+    '''
     if country == 'greece':
         return load_greece()
     elif country == 'italy':
@@ -89,6 +105,21 @@ def load_country(country='greece'):
 
 
 def team_stats(team_dfs, sort_by='current_period_pts', verbose=0):
+    ''' ### Cumulative team stats for all available periods
+
+        Parameters:
+
+            teamdfs (dict): dictionary (created by create_team_df_dict())
+                        with key the team name and value a pandas dataframe with the team's
+                        matches (created by create_team_df())
+            sort_by (str): sorting method (currently only "current_period_pts" implemented).
+                        Leaves sorting unchanged if "None"
+            verbose (int): reporting level (1: prints resulting dataframe, 2: prints also team dictionary)
+
+        Returns:
+
+            (Pandas Dataframe): Team Stats
+    '''
     df = pd.DataFrame()
     for key, value in team_dfs.items():
         team_dict = {}

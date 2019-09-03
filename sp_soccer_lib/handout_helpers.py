@@ -1,5 +1,5 @@
 def style():
-    return '''
+    style = '''
 <style>
 
     h2 {
@@ -31,6 +31,7 @@ def style():
 </style>
 
     '''
+    return style
 
 
 def get_country_header(country):
@@ -49,6 +50,10 @@ def get_country_header(country):
     elif country == 'italy':
         return '<img src="https://2.bp.blogspot.com/-EREH6W98EXU/XNVkWSIhfgI/AAAAAAAB7R4/' + \
             'Kt4WHlhPBYIJ9MZkxJ9v-fL9hLbWHXQwgCLcBGAs/s1600/all-new-serie-a-logo % 2B % 25281 % 2529.jpg"' + \
+            ' alt="Logo" width="100%">'
+    elif country == 'spain':
+        return '<img src="https://besthqwallpapers.com/Uploads/21-9-2017/21194/' + \
+            'thumb2-la-liga-emblem-logo-spain-flag-of-spain.jpg"' + \
             ' alt="Logo" width="100%">'
     else:
         return '<h2>{0}</h2>'.format(country.capitalize())
