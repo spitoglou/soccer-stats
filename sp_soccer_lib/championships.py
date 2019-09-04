@@ -14,6 +14,8 @@ COUNTRIES = {
 FIELDS = ['HomeTeam', 'AwayTeam', 'FTR', 'FTHG', 'FTAG', 'B365D']
 CURRENT_PERIOD = '1920'
 
+NEXT_MATCHES = 7
+
 
 def corrected(df):
     ''' ### Correct possible team misnomers and sort dataframe '''
@@ -41,7 +43,8 @@ def load_dataset(country, period, dateparser=dateparser1819, fields=FIELDS):
 
 def load_greece(fields=FIELDS):
     df = load_dataset('Greece', '1819', fields=fields)
-    df = df.append(load_dataset('Greece', '1718', dateparser1718, fields=fields))
+    df = df.append(load_dataset('Greece', '1718',
+                                dateparser1718, fields=fields))
     df = df.append(load_dataset('Greece', '1920', fields=fields))
     return corrected(df)
 
@@ -55,28 +58,32 @@ def load_england(fields=FIELDS):
 
 def load_italy(fields=FIELDS):
     df = load_dataset('Italy', '1819', fields=fields)
-    df = df.append(load_dataset('Italy', '1718', dateparser1718, fields=fields))
+    df = df.append(load_dataset('Italy', '1718',
+                                dateparser1718, fields=fields))
     df = df.append(load_dataset('Italy', '1920', fields=fields))
     return corrected(df)
 
 
 def load_spain(fields=FIELDS):
     df = load_dataset('Spain', '1819', fields=fields)
-    df = df.append(load_dataset('Spain', '1718', dateparser1718, fields=fields))
+    df = df.append(load_dataset('Spain', '1718',
+                                dateparser1718, fields=fields))
     df = df.append(load_dataset('Spain', '1920', fields=fields))
     return corrected(df)
 
 
 def load_germany(fields=FIELDS):
     df = load_dataset('Germany', '1819', fields=fields)
-    df = df.append(load_dataset('Germany', '1718', dateparser1718, fields=fields))
+    df = df.append(load_dataset('Germany', '1718',
+                                dateparser1718, fields=fields))
     df = df.append(load_dataset('Germany', '1920', fields=fields))
     return corrected(df)
 
 
 def load_france(fields=FIELDS):
     df = load_dataset('France', '1819', fields=fields)
-    df = df.append(load_dataset('France', '1718', dateparser1718, fields=fields))
+    df = df.append(load_dataset('France', '1718',
+                                dateparser1718, fields=fields))
     df = df.append(load_dataset('France', '1920', fields=fields))
     return corrected(df)
 
@@ -104,6 +111,13 @@ def load_country(country='greece', fields=FIELDS):
         raise Exception('Not Found Country!')
 
 
+def calc_c_prob(row):
+    from .probabilities import cumulative_binomial_probabilities, convert_dec_to_prob
+    matches = NEXT_MATCHES + int(row['CurrentNoDraw'])
+    mean_probability = convert_dec_to_prob(row['B365D_mean'])
+    return cumulative_binomial_probabilities(matches, 1, mean_probability)[3]
+
+
 def team_stats(team_dfs, sort_by='current_period_pts', verbose=0):
     ''' ### Cumulative team stats for all available periods
 
@@ -128,7 +142,8 @@ def team_stats(team_dfs, sort_by='current_period_pts', verbose=0):
         a.replace('', 0, inplace=True)
         team_dict.update({
             'MaxNoDraw': a['count_no_draw'].max(),
-            'CurrentNoDraw': a.iloc[-1, :]['count_no_draw']
+            'CurrentNoDraw': a.iloc[-1, :]['count_no_draw'],
+            'B365D_mean': a['B365D'].mean()
         })
         for period in PERIODS:
             wins, draws, losses, points = period_stats(a, period)
@@ -139,11 +154,13 @@ def team_stats(team_dfs, sort_by='current_period_pts', verbose=0):
                 period + '_points': points
             })
         df = df.append(team_dict, ignore_index=True)
+        df['c_prob'] = df.apply(lambda row: calc_c_prob(row), axis=1)
         if verbose > 1:
             print(team_dict)
     df.set_index('Name', inplace=True)
     if sort_by == 'current_period_pts':
-        df.sort_values(by=[CURRENT_PERIOD + '_points'], inplace=True, ascending=False)
+        df.sort_values(by=[CURRENT_PERIOD + '_points'],
+                       inplace=True, ascending=False)
     if verbose > 0:
         print(df)
     return df
