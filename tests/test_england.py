@@ -9,7 +9,7 @@ def bootstrap_england():
 def test_team_dfs():
     from sp_soccer_lib import period_stats
     team_dfs = bootstrap_england()
-    wins, draws, losses, points = period_stats(team_dfs['Arsenal'], '1819')
+    wins, draws, losses, points, gf, ga = period_stats(team_dfs['Arsenal'], 'Arsenal', '1819')
     assert wins == 21
     assert draws == 7
     assert losses == 10

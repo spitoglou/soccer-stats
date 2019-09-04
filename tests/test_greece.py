@@ -9,7 +9,7 @@ def bootstrap_greece():
 def test_team_dfs():
     from sp_soccer_lib import period_stats
     team_dfs = bootstrap_greece()
-    wins, draws, losses, points = period_stats(team_dfs['Panionios'], '1819')
+    wins, draws, losses, points, gf, ga = period_stats(team_dfs['Panionios'], 'Panionios', '1819')
     assert wins == 11
     assert draws == 5
     assert losses == 14

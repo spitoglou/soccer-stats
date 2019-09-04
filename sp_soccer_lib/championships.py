@@ -141,17 +141,19 @@ def team_stats(team_dfs, sort_by='current_period_pts', verbose=0):
         a = team_dfs[key]
         a.replace('', 0, inplace=True)
         team_dict.update({
-            'MaxNoDraw': a['count_no_draw'].max(),
-            'CurrentNoDraw': a.iloc[-1, :]['count_no_draw'],
+            'MaxNoDraw': int(a['count_no_draw'].max()),
+            'CurrentNoDraw': int(a.iloc[-1, :]['count_no_draw']),
             'B365D_mean': a['B365D'].mean()
         })
         for period in PERIODS:
-            wins, draws, losses, points = period_stats(a, period)
+            wins, draws, losses, points, gf, ga = period_stats(a, key, period)
             team_dict.update({
-                period + '_wins': wins,
-                period + '_draws': draws,
-                period + '_losses': losses,
-                period + '_points': points
+                period + '_wins': int(wins),
+                period + '_draws': int(draws),
+                period + '_losses': int(losses),
+                period + '_points': int(points),
+                period + '_gf': int(gf),
+                period + '_ga': int(ga),
             })
         df = df.append(team_dict, ignore_index=True)
         df['c_prob'] = df.apply(lambda row: calc_c_prob(row), axis=1)
@@ -159,7 +161,7 @@ def team_stats(team_dfs, sort_by='current_period_pts', verbose=0):
             print(team_dict)
     df.set_index('Name', inplace=True)
     if sort_by == 'current_period_pts':
-        df.sort_values(by=[CURRENT_PERIOD + '_points'],
+        df.sort_values(by=[CURRENT_PERIOD + '_points', CURRENT_PERIOD + '_gf', CURRENT_PERIOD + '_ga'],
                        inplace=True, ascending=False)
     if verbose > 0:
         print(df)
