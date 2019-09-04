@@ -27,8 +27,16 @@ for country in countries:
     stats = team_stats(team_dfs)
     stats['index_col'] = stats.index
     stats['link'] = stats.apply(lambda row: make_link(row), axis=1)
-    columns_to_show = ['1920_wins', '1920_draws', '1920_losses',
-                       '1920_points', 'CurrentNoDraw', 'MaxNoDraw', 'B365D_mean', 'c_prob', 'link']
+    stats = stats.rename(columns={
+        '1920_wins': 'W',
+        '1920_draws': 'D',
+        '1920_losses': 'L',
+        '1920_gf': 'GF',
+        '1920_ga': 'GA',
+        '1920_points': 'PTS'
+    })
+    columns_to_show = ['W', 'D', 'L', 'GF', 'GA',
+                       'PTS', 'CurrentNoDraw', 'MaxNoDraw', 'B365D_mean', 'c_prob', 'link']
     doc.add_html(stats.to_html(columns=columns_to_show, escape=False))
 
     freq = no_draw_frequencies(country)
