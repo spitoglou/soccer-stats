@@ -47,10 +47,11 @@ def update_draw_streaks(team_df, verbose=0):
 
     count = 1
     memory = 'G'
+    period_memory = 'start'
     for index, row in team_df.iterrows():
         if row['FTR'] == 'D':
             no_draw.append(0)
-            if memory == 'D':
+            if memory == 'D' and row['period'] == period_memory:
                 count += 1
                 draw.append(count)
             else:
@@ -59,19 +60,34 @@ def update_draw_streaks(team_df, verbose=0):
                 count = 1
         else:
             draw.append(0)
-            if memory != 'D':
+            if memory != 'D' and row['period'] == period_memory:
                 count += 1
                 no_draw.append(count)
             else:
                 no_draw.append(1)
                 memory = 'ND'
                 count = 1
+        period_memory = row['period']
     team_df['count_draw'] = draw
     team_df['count_no_draw'] = no_draw
     return team_df
 
 
-def period_stats(team_df, period='1920'):
+def calc_gf(row):
+    if row['name'] == row['HomeTeam']:
+        return row['FTHG']
+    else:
+        return row['FTAG']
+
+
+def calc_ga(row):
+    if row['name'] == row['HomeTeam']:
+        return row['FTAG']
+    else:
+        return row['FTHG']
+
+
+def period_stats(team_df, team_name, period='1920'):
     wins = team_df.query(
         'result == "W" and period == "' + period + '"').shape[0]
     draws = team_df.query(
@@ -79,7 +95,14 @@ def period_stats(team_df, period='1920'):
     losses = team_df.query(
         'result == "L" and period == "' + period + '"').shape[0]
     points = wins * 3 + draws * 1
-    return (wins, draws, losses, points)
+    team_df['name'] = team_name
+    team_df['GF'] = team_df.apply(lambda row: calc_gf(row), axis=1)
+    team_df['GA'] = team_df.apply(lambda row: calc_ga(row), axis=1)
+    gf = team_df.query(
+        'period == "' + period + '"')['GF'].sum()
+    ga = team_df.query(
+        'period == "' + period + '"')['GA'].sum()
+    return (wins, draws, losses, points, gf, ga)
 
 
 def no_draw_frequencies(country, specific_teams=None):
