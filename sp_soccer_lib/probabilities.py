@@ -47,5 +47,5 @@ def cumulative_binomial_probabilities(number_of_trials: int, number_of_successes
 
 
 if __name__ == '__main__':
-    print(exact_binomial_probability(10, 1, 0.1))
+    print(exact_binomial_probability(10, 1, 0.33))
     print(cumulative_binomial_probabilities(10, 1, 0.1))

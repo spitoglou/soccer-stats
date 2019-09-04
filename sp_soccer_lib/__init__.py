@@ -24,50 +24,50 @@ def create_team_df_dict(dataframe):
 
 
 def update_results(team_df, team):
-    team_df['result'] = ''
+    results = []
+
     for index, row in team_df.iterrows():
         if row['HomeTeam'] == team and row['FTR'] == 'H':
-            row['result'] = 'W'
+            results.append('W')
         elif row['HomeTeam'] == team and row['FTR'] == 'A':
-            row['result'] = 'L'
+            results.append('L')
         elif row['AwayTeam'] == team and row['FTR'] == 'H':
-            row['result'] = 'L'
+            results.append('L')
         elif row['AwayTeam'] == team and row['FTR'] == 'A':
-            row['result'] = 'W'
+            results.append('W')
         else:
-            row['result'] = 'D'
+            results.append('D')
+    team_df['result'] = results
     return team_df
 
 
 def update_draw_streaks(team_df, verbose=0):
-    team_df['count_draw'] = ''
-    team_df['count_no_draw'] = ''
+    draw = []
+    no_draw = []
 
-    count_draw = 1
-    count_no_draw = 1
+    count = 1
     memory = 'G'
     for index, row in team_df.iterrows():
         if row['FTR'] == 'D':
-            row['count_draw'] = 1
-            memory = 'D'
+            no_draw.append(0)
+            if memory == 'D':
+                count += 1
+                draw.append(count)
+            else:
+                draw.append(1)
+                memory = 'D'
+                count = 1
         else:
-            row['count_no_draw'] = 1
-            memory = 'ND'
-        if row['FTR'] == memory and row['FTR'] == 'D':
-            row['count_draw'] = count_draw
-            count_draw = count_draw + 1
-            count_no_draw = 1
-        elif memory == 'ND' and row['FTR'] != 'D':
-            row['count_no_draw'] = count_no_draw
-            count_draw = 1
-            count_no_draw = count_no_draw + 1
-        else:
-            count_draw = 1
-            count_no_draw = 1
-            # row['count'] = ''
-            # memory = row['FTR']
-        if verbose > 1:
-            print(count_draw, count_no_draw, row['FTR'], memory)
+            draw.append(0)
+            if memory != 'D':
+                count += 1
+                no_draw.append(count)
+            else:
+                no_draw.append(1)
+                memory = 'ND'
+                count = 1
+    team_df['count_draw'] = draw
+    team_df['count_no_draw'] = no_draw
     return team_df
 
 
@@ -94,17 +94,11 @@ def no_draw_frequencies(country, specific_teams=None):
     for team in teams:
         # pp.pprint(team_dfs[team])
         placeholder = 'start'
-        for (index_label, row_series) in team_dfs[team].iterrows():
-            # print(index_label, row_series['count_no_draw'])
-            if placeholder != 'start' and row_series['count_no_draw'] == '':
-                if placeholder == '':
-                    no_draw_distribution.append(0)
-                    # print('Added 0')
-                else:
-                    no_draw_distribution.append(placeholder)
-                    # print('Added ', placeholder)
-                placeholder = ''
-            else:
-                placeholder = row_series['count_no_draw']
+        for (index_label, row) in team_dfs[team].iterrows():
+            if placeholder == 'start':
+                pass
+            elif row['result'] == 'D':
+                no_draw_distribution.append(placeholder)
+            placeholder = row['count_no_draw']
     # pp.pprint(no_draw_distribution)
     return no_draw_distribution

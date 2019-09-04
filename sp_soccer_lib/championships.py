@@ -11,7 +11,7 @@ COUNTRIES = {
     'Germany': 'D1',
     'France': 'F1'
 }
-FIELDS = ['HomeTeam', 'AwayTeam', 'FTR']
+FIELDS = ['HomeTeam', 'AwayTeam', 'FTR', 'FTHG', 'FTAG', 'B365D']
 CURRENT_PERIOD = '1920'
 
 
@@ -22,7 +22,7 @@ def corrected(df):
     return df
 
 
-def load_dataset(country, period, dateparser=dateparser1819):
+def load_dataset(country, period, dateparser=dateparser1819, fields=FIELDS):
     ''' ### Load csv data from remote site.
 
         Parameters:
@@ -34,54 +34,54 @@ def load_dataset(country, period, dateparser=dateparser1819):
     '''
     load = pd.read_csv('https://www.football-data.co.uk/mmz4281/' + period + '/' + COUNTRIES[country] + '.csv',
                        parse_dates=['Date'], index_col='Date', date_parser=dateparser)
-    df = load[FIELDS].copy()
+    df = load[fields].copy()
     df['period'] = period
     return df
 
 
-def load_greece():
-    df = load_dataset('Greece', '1819')
-    df = df.append(load_dataset('Greece', '1718', dateparser1718))
-    df = df.append(load_dataset('Greece', '1920'))
+def load_greece(fields=FIELDS):
+    df = load_dataset('Greece', '1819', fields=fields)
+    df = df.append(load_dataset('Greece', '1718', dateparser1718, fields=fields))
+    df = df.append(load_dataset('Greece', '1920', fields=fields))
     return corrected(df)
 
 
-def load_england():
-    df = load_dataset('England', '1819')
-    df = df.append(load_dataset('England', '1718'))
-    df = df.append(load_dataset('England', '1920'))
+def load_england(fields=FIELDS):
+    df = load_dataset('England', '1819', fields=fields)
+    df = df.append(load_dataset('England', '1718', fields=fields))
+    df = df.append(load_dataset('England', '1920', fields=fields))
     return corrected(df)
 
 
-def load_italy():
-    df = load_dataset('Italy', '1819')
-    df = df.append(load_dataset('Italy', '1718', dateparser1718))
-    df = df.append(load_dataset('Italy', '1920'))
+def load_italy(fields=FIELDS):
+    df = load_dataset('Italy', '1819', fields=fields)
+    df = df.append(load_dataset('Italy', '1718', dateparser1718, fields=fields))
+    df = df.append(load_dataset('Italy', '1920', fields=fields))
     return corrected(df)
 
 
-def load_spain():
-    df = load_dataset('Spain', '1819')
-    df = df.append(load_dataset('Spain', '1718', dateparser1718))
-    df = df.append(load_dataset('Spain', '1920'))
+def load_spain(fields=FIELDS):
+    df = load_dataset('Spain', '1819', fields=fields)
+    df = df.append(load_dataset('Spain', '1718', dateparser1718, fields=fields))
+    df = df.append(load_dataset('Spain', '1920', fields=fields))
     return corrected(df)
 
 
-def load_germany():
-    df = load_dataset('Germany', '1819')
-    df = df.append(load_dataset('Germany', '1718', dateparser1718))
-    df = df.append(load_dataset('Germany', '1920'))
+def load_germany(fields=FIELDS):
+    df = load_dataset('Germany', '1819', fields=fields)
+    df = df.append(load_dataset('Germany', '1718', dateparser1718, fields=fields))
+    df = df.append(load_dataset('Germany', '1920', fields=fields))
     return corrected(df)
 
 
-def load_france():
-    df = load_dataset('France', '1819')
-    df = df.append(load_dataset('France', '1718', dateparser1718))
-    df = df.append(load_dataset('France', '1920'))
+def load_france(fields=FIELDS):
+    df = load_dataset('France', '1819', fields=fields)
+    df = df.append(load_dataset('France', '1718', dateparser1718, fields=fields))
+    df = df.append(load_dataset('France', '1920', fields=fields))
     return corrected(df)
 
 
-def load_country(country='greece'):
+def load_country(country='greece', fields=FIELDS):
     ''' ### Load country proxy function
 
         Parameters:
@@ -89,17 +89,17 @@ def load_country(country='greece'):
             country (str): Country name
     '''
     if country == 'greece':
-        return load_greece()
+        return load_greece(fields)
     elif country == 'italy':
-        return load_italy()
+        return load_italy(fields)
     elif country == 'england':
-        return load_england()
+        return load_england(fields)
     elif country == 'spain':
-        return load_spain()
+        return load_spain(fields)
     elif country == 'germany':
-        return load_germany()
+        return load_germany(fields)
     elif country == 'france':
-        return load_france()
+        return load_france(fields)
     else:
         raise Exception('Not Found Country!')
 
