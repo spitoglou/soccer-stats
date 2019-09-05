@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from collections import Counter
 
 import handout
+import statistics
 from sp_soccer_lib.championships import load_england, load_italy, team_stats, load_country
 from sp_soccer_lib.handout_helpers import style, get_country_header, make_link
 from sp_soccer_lib import create_team_df_dict, championship_teams, no_draw_frequencies
@@ -40,18 +41,21 @@ for country in countries:
                        'PTS', 'CurrentNoDraw', 'MaxNoDraw', 'B365D_mean', 'c_prob', 'link']
     doc.add_html(stats.to_html(columns=columns_to_show, escape=False))
 
-    # freq = no_draw_frequencies(country)
-    # series = pd.Series(freq)
-    # counts = series.value_counts()
     series = no_draw_frequencies(country)
     freq = Counter(series)
     doc.add_text(' ')
-    doc.add_text(freq)
+    doc.add_html(
+        '<p class="centered">Country Average: <b>{0}</b></p>'.format(statistics.mean(series)))
+    doc.add_html(
+        '<p class="centered">Country Median: <b>{0}</b></p>'.format(statistics.median(series)))
     table = pd.Series(freq).to_frame()
     doc.add_html(table.sort_index().to_html())
     fig, ax = plt.subplots(figsize=(3, 2))
     ax.hist(series)
-    doc.add_figure(fig, width=0.6)
+    doc.add_figure(fig, width=0.8)
+    fig, ax = plt.subplots(figsize=(3, 2))
+    ax.boxplot(series, vert=False)
+    doc.add_figure(fig, width=0.8)
 
     doc.show()
 
@@ -59,10 +63,17 @@ for country in countries:
     for team in teams:
         doc = handout.Handout('handout/' + country + '/' + team)
         doc.add_html(styling)
+        doc.add_text('## ' + team)
         team_matches = team_dfs[team]
         # TODO: Find a solution with team logos?
         # team_matches['HomeTeam'] = team_matches.apply(lambda row: add_logo(row), axis=1)
-        team_html = team_matches.iloc[::-1].to_html(escape=False).replace(
+        team_matches = team_matches.rename(columns={
+            'HomeTeam': 'H',
+            'AwayTeam': 'A',
+        })
+        columns_to_show = ['period', 'H', 'A', 'result', 'FTHG', 'FTAG',
+                           'B365D', 'count_draw', 'count_no_draw']
+        team_html = team_matches.iloc[::-1].to_html(escape=False, columns=columns_to_show).replace(
             '<td>W</td>', '<td style="background-color:greenyellow;">W</td>'
         ).replace(
             '<td>D</td>', '<td style="background-color:orange;">D</td>'
@@ -72,18 +83,25 @@ for country in countries:
             team, '<b>{0}</b>'.format(team)
         )
         doc.add_html(team_html)
-        # freq = no_draw_frequencies(country, [team])
-        # series = pd.Series(freq)
-        # counts = series.value_counts()
-        series = no_draw_frequencies(country, [team])
-        freq = Counter(series)
-        doc.add_text(' ')
-        doc.add_text(freq)
-        table = pd.Series(freq).to_frame()
-        doc.add_html(table.sort_index().to_html())
-        fig, ax = plt.subplots(figsize=(3, 2))
-        ax.hist(series)
-        doc.add_figure(fig, width=0.6)
+        try:
+            series = no_draw_frequencies(country, [team])
+            freq = Counter(series)
+            doc.add_text(' ')
+            doc.add_html(
+                '<p class="centered">Team Average: <b>{0}</b></p>'.format(statistics.mean(series)))
+            doc.add_html(
+                '<p class="centered">Team Median: <b>{0}</b></p>'.format(statistics.median(series)))
+            table = pd.Series(freq).to_frame()
+            doc.add_html(table.sort_index().to_html())
+            fig, ax = plt.subplots(figsize=(3, 2))
+            ax.hist(series)
+            doc.add_figure(fig, width=0.8)
+            fig, ax = plt.subplots(figsize=(3, 2))
+            ax.boxplot(series, vert=False)
+            doc.add_figure(fig, width=0.8)
+        except statistics.StatisticsError as e:
+            print(e)
+            pass
 
         doc.show()
 

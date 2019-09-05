@@ -27,6 +27,9 @@ def style():
     .wide {
         width: 90%;
     }
+    centered: {
+        text-align: center;
+    }
 
 </style>
 
