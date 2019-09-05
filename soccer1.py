@@ -2,6 +2,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 # import numpy as np
+from collections import Counter
 
 import handout
 from sp_soccer_lib.championships import load_england, load_italy, team_stats, load_country
@@ -39,12 +40,14 @@ for country in countries:
                        'PTS', 'CurrentNoDraw', 'MaxNoDraw', 'B365D_mean', 'c_prob', 'link']
     doc.add_html(stats.to_html(columns=columns_to_show, escape=False))
 
-    freq = no_draw_frequencies(country)
-    series = pd.Series(freq)
-    counts = series.value_counts()
+    # freq = no_draw_frequencies(country)
+    # series = pd.Series(freq)
+    # counts = series.value_counts()
+    series = no_draw_frequencies(country)
+    freq = Counter(series)
     doc.add_text(' ')
-    doc.add_text(dict(counts))
-    table = pd.Series(dict(counts)).to_frame()
+    doc.add_text(freq)
+    table = pd.Series(freq).to_frame()
     doc.add_html(table.sort_index().to_html())
     fig, ax = plt.subplots(figsize=(3, 2))
     ax.hist(series)
@@ -69,12 +72,14 @@ for country in countries:
             team, '<b>{0}</b>'.format(team)
         )
         doc.add_html(team_html)
-        freq = no_draw_frequencies(country, [team])
-        series = pd.Series(freq)
-        counts = series.value_counts()
+        # freq = no_draw_frequencies(country, [team])
+        # series = pd.Series(freq)
+        # counts = series.value_counts()
+        series = no_draw_frequencies(country, [team])
+        freq = Counter(series)
         doc.add_text(' ')
-        doc.add_text(dict(counts))
-        table = pd.Series(dict(counts)).to_frame()
+        doc.add_text(freq)
+        table = pd.Series(freq).to_frame()
         doc.add_html(table.sort_index().to_html())
         fig, ax = plt.subplots(figsize=(3, 2))
         ax.hist(series)
