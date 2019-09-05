@@ -16,17 +16,17 @@ import pandas as pd
 import warnings
 
 # customize some matplotlib attributes
-#matplotlib.rc('figure', figsize=(4, 3))
+# matplotlib.rc('figure', figsize=(4, 3))
 
-#matplotlib.rc('font', size=14.0)
-#matplotlib.rc('axes', labelsize=22.0, titlesize=22.0)
-#matplotlib.rc('legend', fontsize=20.0)
+# matplotlib.rc('font', size=14.0)
+# matplotlib.rc('axes', labelsize=22.0, titlesize=22.0)
+# matplotlib.rc('legend', fontsize=20.0)
 
-#matplotlib.rc('xtick.major', size=6.0)
-#matplotlib.rc('xtick.minor', size=3.0)
+# matplotlib.rc('xtick.major', size=6.0)
+# matplotlib.rc('xtick.minor', size=3.0)
 
-#matplotlib.rc('ytick.major', size=6.0)
-#matplotlib.rc('ytick.minor', size=3.0)
+# matplotlib.rc('ytick.major', size=6.0)
+# matplotlib.rc('ytick.minor', size=3.0)
 
 
 class _Brewer(object):
@@ -411,7 +411,7 @@ def Hist(hist, **options):
         # if not, replace values with numbers
         labels = [str(x) for x in xs]
         xs = np.arange(len(xs))
-        plt.xticks(xs+0.5, labels)
+        plt.xticks(xs + 0.5, labels)
 
     if 'width' not in options:
         try:
@@ -476,7 +476,7 @@ def Pmf(pmf, **options):
 
         points.append((x, lasty))
         points.append((x, y))
-        points.append((x+width, y))
+        points.append((x + width, y))
 
         lastx = x + width
         lasty = y
@@ -485,7 +485,7 @@ def Pmf(pmf, **options):
 
     align = options.pop('align', 'center')
     if align == 'center':
-        pxs = np.array(pxs) - width/2.0
+        pxs = np.array(pxs) - width / 2.0
     if align == 'right':
         pxs = np.array(pxs) - width
 
@@ -516,7 +516,7 @@ def Diff(t):
     Returns:
         sequence of differences (length one less than t)
     """
-    diffs = [t[i+1] - t[i] for i in range(len(t)-1)]
+    diffs = [t[i + 1] - t[i] for i in range(len(t)-1)]
     return diffs
 
 
@@ -553,12 +553,12 @@ def Cdf(cdf, complement=False, transform=None, **options):
         scale['xscale'] = 'log'
 
     if complement:
-        ps = [1.0-p for p in ps]
+        ps = [1.0 - p for p in ps]
 
     if transform == 'weibull':
         xs = np.delete(xs, -1)
         ps = np.delete(ps, -1)
-        ps = [-math.log(1.0-p) for p in ps]
+        ps = [-math.log(1.0 - p) for p in ps]
         scale['xscale'] = 'log'
         scale['yscale'] = 'log'
 
@@ -606,7 +606,9 @@ def Contour(obj, pcolor=False, contour=True, imshow=False, **options):
     ys = sorted(set(ys))
 
     X, Y = np.meshgrid(xs, ys)
-    def func(x, y): return d.get((x, y), 0)
+
+    def func(x, y):
+        return d.get((x, y), 0)
     func = np.vectorize(func)
     Z = func(X, Y)
 

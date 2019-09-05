@@ -1,27 +1,4 @@
-"""This file contains code for use with "Think Stats" and
-"Think Bayes", both by Allen B. Downey, available from greenteapress.com
-
-Copyright 2014 Allen B. Downey
-License: GNU GPLv3 http://www.gnu.org/licenses/gpl.html
-"""
-
 from __future__ import print_function, division
-
-"""This file contains class definitions for:
-
-Hist: represents a histogram (map from values to integer frequencies).
-
-Pmf: represents a probability mass function (map from values to probs).
-
-_DictWrapper: private parent class for Hist and Pmf.
-
-Cdf: represents a discrete cumulative distribution function
-
-Pdf: represents a continuous probability density function
-
-"""
-
-
 import bisect
 import copy
 import logging
@@ -30,7 +7,7 @@ import random
 import re
 from collections import Counter
 from operator import itemgetter
-# import thinkplot
+import external.thinkplot as thinkplot
 import numpy as np
 import pandas
 import scipy
@@ -587,7 +564,7 @@ class Pmf(_DictWrapper):
         if mu is None:
             mu = self.Mean()
 
-        return sum(p * (x-mu)**2 for x, p in self.Items())
+        return sum(p * (x - mu)**2 for x, p in self.Items())
 
     def Expect(self, func):
         """Computes the expectation of func(x).
@@ -751,7 +728,7 @@ class Pmf(_DictWrapper):
         try:
             return self.DivPmf(other)
         except AttributeError:
-            return self.MulConstant(1/other)
+            return self.MulConstant(1 / other)
 
     __truediv__ = __div__
 
@@ -1093,7 +1070,7 @@ class Cdf:
         a = self.ps
         b = np.roll(a, 1)
         b[0] = 0
-        return zip(self.xs, a-b)
+        return zip(self.xs, a - b)
 
     def Shift(self, term):
         """Adds a term to the xs.
@@ -1127,7 +1104,7 @@ class Cdf:
         if x < self.xs[0]:
             return 0
         index = bisect.bisect(self.xs, x)
-        p = self.ps[index-1]
+        p = self.ps[index - 1]
         return p
 
     def Probs(self, xs):
@@ -1139,7 +1116,7 @@ class Cdf:
         """
         xs = np.asarray(xs)
         index = np.searchsorted(self.xs, xs, side='right')
-        ps = self.ps[index-1]
+        ps = self.ps[index - 1]
         ps[xs < self.xs[0]] = 0
         return ps
 
@@ -1626,7 +1603,7 @@ class NormalPdf(Pdf):
 
         Returns: numpy array
         """
-        low, high = self.mu-3*self.sigma, self.mu+3*self.sigma
+        low, high = self.mu - 3 * self.sigma, self.mu + 3 * self.sigma
         return np.linspace(low, high, 101)
 
     def Density(self, xs):
@@ -1659,7 +1636,7 @@ class ExponentialPdf(Pdf):
 
         Returns: numpy array
         """
-        low, high = 0, 5.0/self.lam
+        low, high = 0, 5.0 / self.lam
         return np.linspace(low, high, 101)
 
     def Density(self, xs):
@@ -1669,7 +1646,7 @@ class ExponentialPdf(Pdf):
 
         returns: float or NumPy array of probability density
         """
-        return stats.expon.pdf(xs, scale=1.0/self.lam)
+        return stats.expon.pdf(xs, scale=1.0 / self.lam)
 
 
 class EstimatedPdf(Pdf):
@@ -1856,7 +1833,7 @@ def MakeBinomialPmf(n, p):
     Returns the distribution of successes in n trials with probability p.
     """
     pmf = Pmf()
-    for k in range(n+1):
+    for k in range(n + 1):
         pmf[k] = stats.binom.pmf(k, n, p)
     return pmf
 
@@ -1869,7 +1846,7 @@ def EvalGammaPdf(x, a):
 
     returns: float probability
     """
-    return x**(a-1) * np.exp(-x) / gamma(a)
+    return x**(a - 1) * np.exp(-x) / gamma(a)
 
 
 def MakeGammaPmf(xs, a):
@@ -1994,7 +1971,7 @@ def EvalWeibullPdf(x, lam, k):
     returns: float probability density
     """
     arg = (x / lam)
-    return k / lam * arg**(k-1) * np.exp(-arg**k)
+    return k / lam * arg**(k - 1) * np.exp(-arg**k)
 
 
 def EvalWeibullCdf(x, lam, k):
@@ -2080,7 +2057,7 @@ def EvalNormalCdf(x, mu=0, sigma=1):
 def EvalNormalCdfInverse(p, mu=0, sigma=1):
     """Evaluates the inverse CDF of the normal distribution.
 
-    See http://en.wikipedia.org/wiki/Normal_distribution#Quantile_function  
+    See http://en.wikipedia.org/wiki/Normal_distribution#Quantile_function
 
     Args:
         p: float
@@ -2119,7 +2096,7 @@ def RenderExpoCdf(lam, low, high, n=101):
     """
     xs = np.linspace(low, high, n)
     ps = 1 - np.exp(-lam * xs)
-    #ps = stats.expon.cdf(xs, scale=1.0/lam)
+    # ps = stats.expon.cdf(xs, scale=1.0/lam)
     return xs, ps
 
 
@@ -2154,7 +2131,7 @@ def RenderParetoCdf(xmin, alpha, low, high, n=50):
         low = xmin
     xs = np.linspace(low, high, n)
     ps = 1 - (xs / xmin) ** -alpha
-    #ps = stats.pareto.cdf(xs, scale=xmin, b=alpha)
+    # ps = stats.pareto.cdf(xs, scale=xmin, b=alpha)
     return xs, ps
 
 
@@ -2375,7 +2352,7 @@ def NormalProbability(ys, jitter=0):
     """Generates data for a normal probability plot.
 
     ys: sequence of values
-    jitter: float magnitude of jitter added to the ys 
+    jitter: float magnitude of jitter added to the ys
 
     returns: numpy arrays xs, ys
     """
@@ -2565,7 +2542,7 @@ def Cov(xs, ys, meanx=None, meany=None):
     if meany is None:
         meany = np.mean(ys)
 
-    cov = np.dot(xs-meanx, ys-meany) / len(xs)
+    cov = np.dot(xs - meanx, ys - meany) / len(xs)
     return cov
 
 
@@ -2641,7 +2618,7 @@ def MapToRanks(t):
     resorted = sorted(ranked, key=lambda trip: trip[1][0])
 
     # extract the ranks
-    ranks = [trip[0]+1 for trip in resorted]
+    ranks = [trip[0] + 1 for trip in resorted]
     return ranks
 
 
@@ -2865,7 +2842,7 @@ def ReadStataDct(dct_file, **options):
 
     # fill in the end column by shifting the start column
     variables['end'] = variables.start.shift(-1)
-    variables.loc[len(variables)-1, 'end'] = 0
+    variables.loc[len(variables) - 1, 'end'] = 0
 
     dct = FixedWidthVariables(variables, index_base=1)
     return dct
@@ -3015,7 +2992,7 @@ class HypothesisTest(object):
     def TestStatistic(self, data):
         """Computes the test statistic.
 
-        data: data in whatever form is relevant        
+        data: data in whatever form is relevant
         """
         raise UnimplementedMethodException()
 
