@@ -22,6 +22,7 @@ import ftplib
 import os
 import time
 import socket
+from loguru import logger
 
 __revision__ = 1.11
 
@@ -60,14 +61,14 @@ class FtpAddOns():
                 new_dir += sep + server_dir
                 if not self.ftp_exists(new_dir):
                     try:
-                        print('Attempting to create directory (%s) ...' % (new_dir),
-                              self.ftp_h.mkd(new_dir))
-                        print('Done!')
+                        logger.info('Attempting to create directory (%s) ...' % (new_dir),
+                                    self.ftp_h.mkd(new_dir))
+                        logger.success('Done!')
                     except Exception as e:
-                        print('ERROR -- %s' % (str(e.args)))
+                        logger.exception('ERROR -- %s' % (str(e.args)))
 
 
-def _get_local_files(local_dir, walk=False):
+def _get_local_files(local_dir, walk=False, mode=''):
     '''Retrieve local files list
     result_list == a list of dictionaries with path and mtime keys.
         ex: {'path':<filepath>,'mtime':<file last modified time>}
@@ -80,7 +81,12 @@ def _get_local_files(local_dir, walk=False):
     ignore_dirs = ['CVS', '.svn']
     ignore_files = ['.project', '.pydevproject']
     ignore_file_ext = ['.pyc']
-
+    if mode == 'soccer_update':
+        ignore_file_ext.append('.css')
+        ignore_file_ext.append('.ico')
+        ignore_file_ext.append('.js')
+    logger.info('Mode: ' + mode)
+    logger.info(ignore_file_ext)
     base_dir = os.path.abspath(local_dir)
 
     for current_dir, dirs, files in os.walk(base_dir):
@@ -156,8 +162,7 @@ def monitor_and_ftp(server,
 
             last_files_list = latest_files_list[:]  # copy the list to hold
         except KeyboardInterrupt:
-            print
-            print('Exiting.')
+            logger.warning('Exiting.')
             break
 
 
@@ -168,7 +173,7 @@ def upload_all(server,
                base_remote_dir,
                files_to_update=None,
                encrypt=False,
-               walk=False):
+               walk=False, mode=''):
     '''Upload all files in a given directory to the given remote directory'''
     continue_on = False
     login_ok = False
@@ -180,7 +185,7 @@ def upload_all(server,
     if files_to_update:
         local_files = files_to_update
     else:
-        local_files = _get_local_files(base_local_dir, walk)
+        local_files = _get_local_files(base_local_dir, walk, mode=mode)
 
     if local_files:
         ftp_h = ftplib.FTP()
@@ -189,26 +194,27 @@ def upload_all(server,
             ftp_h.connect(server)
             server_connect_ok = True
         except socket.gaierrora as e:
-            print('ERROR -- Could not connect to (%s): %s' %
-                  (server, str(e.args)))
+            logger.exception('ERROR -- Could not connect to (%s): %s' %
+                             (server, str(e.args)))
         except IOError as e:
-            print('ERROR -- File not found: %s' % (str(e.args)))
+            logger.exception('ERROR -- File not found: %s' % (str(e.args)))
         except socket.error as e:
-            print('ERROR -- Could not connect to (%s): %s' %
-                  (server, str(e.args)))
+            logger.exception('ERROR -- Could not connect to (%s): %s' %
+                             (server, str(e.args)))
 
         ftp_path_tools = FtpAddOns(ftp_h)
 
         if server_connect_ok:
             try:
                 ftp_h.login(username, password)
-                print('Logged into (%s) as (%s)' % (server, username))
+                logger.success('Logged into (%s) as (%s)' % (server, username))
                 login_ok = True
             except ftplib.error_perm as e:
-                print('ERROR -- Check Username/Password: %s' % (str(e.args)))
+                logger.exception(
+                    'ERROR -- Check Username/Password: %s' % (str(e.args)))
             except ftplib.ProcessTimeout as e:
-                print('ERROR -- Check Username/Password (timeout): %s' %
-                      (str(e.args)))
+                logger.exception('ERROR -- Check Username/Password (timeout): %s' %
+                                 (str(e.args)))
 
             if login_ok:
 
@@ -229,9 +235,9 @@ def upload_all(server,
                         ftp_h.cwd(remote_path)
                         continue_on = True
                     except ftplib.error_perm as e:
-                        print('ERROR -- %s' % (str(e.args)))
+                        logger.exception('ERROR -- %s' % (str(e.args)))
                     except ftplib.PsFtpInvalidCommand as e:
-                        print('ERROR -- %s' % (str(e.args)))
+                        logger.exception('ERROR -- %s' % (str(e.args)))
 
                     if continue_on:
                         if os.path.exists(filepath):
@@ -243,24 +249,23 @@ def upload_all(server,
                             display_filename = display_filename.replace(
                                 '\\', '/')
 
-                            print('Sending (%s) ...' % (display_filename),)
+                            logger.info('Sending (%s) ...' %
+                                        (display_filename),)
                             send_cmd = 'STOR %s' % (filename)
                             try:
                                 ftp_h.storbinary(send_cmd, f_h)
                                 f_h.close()
-                                print('Done!')
+                                logger.success('Done!')
                             except Exception as e:
-                                print('ERROR!')
-                                print(str(e.args))
-                                print
+                                logger.exception(str(e.args))
                         else:
-                            print("WARNING -- File no longer exists, (%s)!" %
-                                  (filepath))
+                            logger.warning("WARNING -- File no longer exists, (%s)!" %
+                                           (filepath))
 
                 ftp_h.quit()
-                print('Closing Connection')
+                logger.info('Closing Connection')
     else:
-        print('ERROR -- No files found in (%s)' % (base_local_dir))
+        logger.warning('ERROR -- No files found in (%s)' % (base_local_dir))
 
     return continue_on
 
@@ -273,6 +278,7 @@ if __name__ == '__main__':
     encrypt = False
     monitor = False
     walk = True
+    mode = 'soccer_update'
 
     local_dir = 'handout'
 
@@ -284,10 +290,10 @@ if __name__ == '__main__':
             monitor_and_ftp(server, username, p, local_dir,
                             remote_dir, encrypt, walk)
         except KeyboardInterrupt:
-            print('Exiting...')
+            logger.warning('Exiting...')
     else:
         try:
             upload_all(server, username, p, local_dir,
-                       remote_dir, [], encrypt, walk)
+                       remote_dir, [], encrypt, walk, mode)
         except KeyboardInterrupt:
-            print('Exiting...')
+            logger.warning('Exiting...')
