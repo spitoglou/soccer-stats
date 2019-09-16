@@ -162,7 +162,7 @@ def team_stats(team_dfs, sort_by='current_period_pts', verbose=0):
     df.set_index('Name', inplace=True)
     if sort_by == 'current_period_pts':
         df.sort_values(by=[CURRENT_PERIOD + '_points', CURRENT_PERIOD + '_gf', CURRENT_PERIOD + '_ga'],
-                       inplace=True, ascending=False)
+                       inplace=True, ascending=[False, False, True])
     if verbose > 0:
         print(df)
     return df
