@@ -15,7 +15,7 @@ def test_team_dfs():
     assert losses == 14
     assert points == 38
     olympiakos = team_dfs['Olympiakos']
-    assert olympiakos.shape[0] == 62
+    assert olympiakos.shape[0] == 63
 
 
 def test_team_stats():
