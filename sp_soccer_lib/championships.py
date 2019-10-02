@@ -20,6 +20,7 @@ NEXT_MATCHES = 7
 def corrected(df):
     ''' ### Correct possible team misnomers and sort dataframe '''
     df.replace('Olympiacos Piraeus', 'Olympiakos', inplace=True)
+    df.replace('Volos', 'Volos NFC', inplace=True)
     df.sort_index(inplace=True)
     return df
 
