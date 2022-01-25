@@ -10,16 +10,17 @@ import statistics
 from sp_soccer_lib.championships import team_stats, load_country
 from sp_soccer_lib.handout_helpers import style, get_country_header, make_link
 from sp_soccer_lib import create_team_df_dict, championship_teams, no_draw_frequencies
+from config import CURRENT_PERIOD
 
 
 def country_df_properties(df):
     df = df.rename(columns={
-        '1920_wins': 'W',
-        '1920_draws': 'D',
-        '1920_losses': 'L',
-        '1920_gf': 'GF',
-        '1920_ga': 'GA',
-        '1920_points': 'PTS'
+        f'{CURRENT_PERIOD}_wins': 'W',
+        f'{CURRENT_PERIOD}_draws': 'D',
+        f'{CURRENT_PERIOD}_losses': 'L',
+        f'{CURRENT_PERIOD}_gf': 'GF',
+        f'{CURRENT_PERIOD}_ga': 'GA',
+        f'{CURRENT_PERIOD}_points': 'PTS'
     })
     columns_to_show = ['W', 'D', 'L', 'GF', 'GA',
                        'PTS', 'CurrentNoDraw', 'MaxNoDraw', 'B365D_mean', 'c_prob', 'link']

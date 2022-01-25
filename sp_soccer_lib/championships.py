@@ -29,51 +29,67 @@ def load_dataset(country, period, dateparser=dateparser1819, fields=cfg.FIELDS):
     return df
 
 
-def load_greece(fields=cfg.FIELDS):
-    df = load_dataset('Greece', '1819', fields=fields)
-    df = df.append(load_dataset('Greece', '1718',
-                                dateparser1718, fields=fields))
-    df = df.append(load_dataset('Greece', '1920', fields=fields))
+def country_dataframe(country: str, fields: list) -> pd.DataFrame:
+    df: pd.DataFrame = load_dataset(country, '1819', fields=fields)
+    df = pd.concat([df, load_dataset(country, '1718',
+                                     dateparser1718, fields=fields)])
+    df = pd.concat([df, load_dataset(country, '1920', fields=fields)])
+    df = pd.concat([df, load_dataset(country, '2021', fields=fields)])
+    df = pd.concat([df, load_dataset(country, '2122', fields=fields)])
     return corrected(df)
+
+
+def load_greece(fields=cfg.FIELDS):
+    # df = load_dataset('Greece', '1819', fields=fields)
+    # df = df.append(load_dataset('Greece', '1718',
+    #                             dateparser1718, fields=fields))
+    # df = df.append(load_dataset('Greece', '1920', fields=fields))
+    # return corrected(df)
+    return country_dataframe('Greece', fields)
 
 
 def load_england(fields=cfg.FIELDS):
-    df = load_dataset('England', '1819', fields=fields)
-    df = df.append(load_dataset('England', '1718', fields=fields))
-    df = df.append(load_dataset('England', '1920', fields=fields))
-    return corrected(df)
+    # df = load_dataset('England', '1819', fields=fields)
+    # df = df.append(load_dataset('England', '1718', fields=fields))
+    # df = df.append(load_dataset('England', '1920', fields=fields))
+    # return corrected(df)
+    return country_dataframe('England', fields)
 
 
 def load_italy(fields=cfg.FIELDS):
-    df = load_dataset('Italy', '1819', fields=fields)
-    df = df.append(load_dataset('Italy', '1718',
-                                dateparser1718, fields=fields))
-    df = df.append(load_dataset('Italy', '1920', fields=fields))
-    return corrected(df)
+    # df = load_dataset('Italy', '1819', fields=fields)
+    # df = df.append(load_dataset('Italy', '1718',
+    #                             dateparser1718, fields=fields))
+    # df = df.append(load_dataset('Italy', '1920', fields=fields))
+    # return corrected(df)
+    return country_dataframe('Italy', fields)
 
 
 def load_spain(fields=cfg.FIELDS):
-    df = load_dataset('Spain', '1819', fields=fields)
-    df = df.append(load_dataset('Spain', '1718',
-                                dateparser1718, fields=fields))
-    df = df.append(load_dataset('Spain', '1920', fields=fields))
-    return corrected(df)
+    # df = load_dataset('Spain', '1819', fields=fields)
+    # df = df.append(load_dataset('Spain', '1718',
+    #                             dateparser1718, fields=fields))
+    # df = df.append(load_dataset('Spain', '1920', fields=fields))
+    # return corrected(df)
+    return country_dataframe('Spain', fields)
 
 
 def load_germany(fields=cfg.FIELDS):
-    df = load_dataset('Germany', '1819', fields=fields)
-    df = df.append(load_dataset('Germany', '1718',
-                                dateparser1718, fields=fields))
-    df = df.append(load_dataset('Germany', '1920', fields=fields))
-    return corrected(df)
+    # df = load_dataset('Germany', '1819', fields=fields)
+    # df = df.append(load_dataset('Germany', '1718',
+    #                             dateparser1718, fields=fields))
+    # df = df.append(load_dataset('Germany', '1920', fields=fields))
+    # return corrected(df)
+    return country_dataframe('Germany', fields)
 
 
 def load_france(fields=cfg.FIELDS):
-    df = load_dataset('France', '1819', fields=fields)
-    df = df.append(load_dataset('France', '1718',
-                                dateparser1718, fields=fields))
-    df = df.append(load_dataset('France', '1920', fields=fields))
-    return corrected(df)
+    # df = load_dataset('France', '1819', fields=fields)
+    # df = df.append(load_dataset('France', '1718',
+    #                             dateparser1718, fields=fields))
+    # df = df.append(load_dataset('France', '1920', fields=fields))
+    # return corrected(df)
+    return country_dataframe('France', fields)
 
 
 def load_country(country='greece', fields=cfg.FIELDS):
@@ -143,7 +159,7 @@ def team_stats(team_dfs, sort_by='current_period_pts', verbose=0):
                 period + '_gf': int(gf),
                 period + '_ga': int(ga),
             })
-        df = df.append(team_dict, ignore_index=True)
+        df = pd.concat([df, pd.DataFrame([team_dict])])
         df['c_prob'] = df.apply(lambda row: calc_c_prob(row), axis=1)
         if verbose > 1:
             print(team_dict)
