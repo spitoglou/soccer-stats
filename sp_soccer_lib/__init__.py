@@ -1,5 +1,6 @@
 
 import numpy as np
+from loguru import logger
 
 
 def create_team_df(df, team):
@@ -74,17 +75,11 @@ def update_draw_streaks(team_df, verbose=0):
 
 
 def calc_gf(row):
-    if row['name'] == row['HomeTeam']:
-        return row['FTHG']
-    else:
-        return row['FTAG']
+    return row['FTHG'] if row['name'] == row['HomeTeam'] else row['FTAG']
 
 
 def calc_ga(row):
-    if row['name'] == row['HomeTeam']:
-        return row['FTAG']
-    else:
-        return row['FTHG']
+    return row['FTAG'] if row['name'] == row['HomeTeam'] else row['FTHG']
 
 
 def period_stats(team_df, team_name, period='1920'):
@@ -95,6 +90,10 @@ def period_stats(team_df, team_name, period='1920'):
     losses = team_df.query(
         'result == "L" and period == "' + period + '"').shape[0]
     points = wins * 3 + draws * 1
+    # TODO: make this more dynamic
+    if team_name == 'Aris' and period == '2122':
+        points = points - 6
+        logger.info('Made Aris 2122 Adjustment')
     team_df['name'] = team_name
     team_df['GF'] = team_df.apply(lambda row: calc_gf(row), axis=1)
     team_df['GA'] = team_df.apply(lambda row: calc_ga(row), axis=1)
@@ -110,10 +109,7 @@ def no_draw_frequencies(country, specific_teams=None):
     df = load_country(country)
     team_dfs = create_team_df_dict(df)
     no_draw_distribution = []
-    if specific_teams:
-        teams = specific_teams
-    else:
-        teams = championship_teams(df)
+    teams = specific_teams or championship_teams(df)
     for team in teams:
         # pp.pprint(team_dfs[team])
         placeholder = 'start'

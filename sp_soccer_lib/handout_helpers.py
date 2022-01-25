@@ -42,7 +42,7 @@ def get_country_header(country):
         return '<img src="https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/' + \
             'Premier_League_Logo.svg/1920px-Premier_League_Logo.svg.png" alt="Logo" width="100%">'
     elif country == 'greece':
-        return '<img src="http://blog.fieldoo.com/wp-content/uploads/2015/05/images_posts_Greece.jpg" ' + \
+        return '<img src="https://www.slgr.gr/img/defaultOg.jpg" ' + \
             'alt="Logo" width="100%">'
     elif country == 'germany':
         return '<img src="https://2.bp.blogspot.com/-1DSQUPYLIEI/Tfuiy8MMq9I/AAAAAAAAW0c/AGs0P4JDHoA/s1600/' + \

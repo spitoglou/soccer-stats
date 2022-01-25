@@ -81,6 +81,8 @@ def update_local_handout():
         stats['index_col'] = stats.index
         stats['link'] = stats.apply(lambda row: make_link(row), axis=1)
         stats, columns_to_show = country_df_properties(stats)
+        # Remove teams with 0 points
+        stats = stats[stats.PTS > 0]
         country_doc.add_html(stats.to_html(
             columns=columns_to_show, escape=False))
 
@@ -116,10 +118,7 @@ def update_local_handout():
             try:  # because there were countries with few stats in the time of codeing
                 team_doc = frequency_graphs(team_doc, country, [team])
             except statistics.StatisticsError as e:
-                # print(e)
                 logger.exception(e)
-                pass
-
             team_doc.show()
             # logger.info('Finished')
     logger.info('Finished All Countries and Teams')

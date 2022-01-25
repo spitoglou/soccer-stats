@@ -18,18 +18,15 @@ def update_and_upload():
     # get the user password
     p = 'nn437wOh3P'
 
-    if monitor:
-        try:
+    try:
+        if monitor:
             ftp_transfer.monitor_and_ftp(server, username, p, local_dir,
                                          remote_dir, encrypt, walk)
-        except KeyboardInterrupt:
-            logger.warning('Exiting...')
-    else:
-        try:
+        else:
             ftp_transfer.upload_all(server, username, p, local_dir,
                                     remote_dir, [], encrypt, walk, mode)
-        except KeyboardInterrupt:
-            logger.warning('Exiting...')
+    except KeyboardInterrupt:
+        logger.warning('Exiting...')
 
 
 if __name__ == "__main__":
