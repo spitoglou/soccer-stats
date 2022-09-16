@@ -1,16 +1,17 @@
 # handout: begin-exclude
-import pandas as pd
-import matplotlib.pyplot as plt
-# import numpy as np
-from collections import Counter
-from loguru import logger
-
-import handout
-import statistics
-from sp_soccer_lib.championships import team_stats, load_country
-from sp_soccer_lib.handout_helpers import style, get_country_header, make_link
-from sp_soccer_lib import create_team_df_dict, championship_teams, no_draw_frequencies
 from config import CURRENT_PERIOD
+from sp_soccer_lib import create_team_df_dict, championship_teams, no_draw_frequencies
+from sp_soccer_lib.handout_helpers import style, get_country_header, make_link
+from sp_soccer_lib.championships import team_stats, load_country
+import statistics
+import handout
+from loguru import logger
+from collections import Counter
+import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
+from matplotlib import pyplot as plt
+# import numpy as np
 
 
 def country_df_properties(df):
