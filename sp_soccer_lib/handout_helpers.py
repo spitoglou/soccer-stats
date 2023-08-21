@@ -48,16 +48,13 @@ def get_country_header(country):
         return '<img src="https://2.bp.blogspot.com/-1DSQUPYLIEI/Tfuiy8MMq9I/AAAAAAAAW0c/AGs0P4JDHoA/s1600/' + \
             'Bundesliga_Logo.png" alt="Logo" width="100%">'
     elif country == 'france':
-        return '<img src="https://medias.lequipe.fr/img-photo-png/-/1500000000807555/126: 0, 1639: ' + \
-            '1008-624-416-75/c397a.png" alt="Logo" width="100%">'
+        return '<img src="https://cdn.apexsports.gr/sites/40/2023/01/YTWGSWMUERFZNE7O2EC7QFA6TE-1.jpg" alt="Logo" width="100%">'
     elif country == 'italy':
         return '<img src="https://2.bp.blogspot.com/-EREH6W98EXU/XNVkWSIhfgI/AAAAAAAB7R4/' + \
             'Kt4WHlhPBYIJ9MZkxJ9v-fL9hLbWHXQwgCLcBGAs/s1600/all-new-serie-a-logo % 2B % 25281 % 2529.jpg"' + \
             ' alt="Logo" width="100%">'
     elif country == 'spain':
-        return '<img src="https://besthqwallpapers.com/Uploads/21-9-2017/21194/' + \
-            'thumb2-la-liga-emblem-logo-spain-flag-of-spain.jpg"' + \
-            ' alt="Logo" width="100%">'
+        return '<img src="https://s.yimg.com/os/creatr-uploaded-images/2023-06/c3acb370-03a0-11ee-8957-525d7f4643f9" alt="Logo" width="100%">'
     else:
         return '<h2>{0}</h2>'.format(country.capitalize())
 

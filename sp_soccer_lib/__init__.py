@@ -1,6 +1,7 @@
 
 import numpy as np
 from loguru import logger
+from config import CURRENT_PERIOD
 
 
 def create_team_df(df, team):
@@ -10,7 +11,7 @@ def create_team_df(df, team):
 
 
 def championship_teams(df):
-    return np.unique(np.concatenate((df.HomeTeam.unique(), df.AwayTeam.unique())))
+    return np.unique(np.concatenate((df[df.period == CURRENT_PERIOD].HomeTeam.unique(), df[df.period == CURRENT_PERIOD].AwayTeam.unique())))
 
 
 def create_team_df_dict(dataframe):

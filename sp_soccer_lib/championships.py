@@ -40,6 +40,7 @@ def country_dataframe(country: str, fields: list) -> pd.DataFrame:
     df = pd.concat([df, load_dataset(country, '2021', fields=fields)])
     df = pd.concat([df, load_dataset(country, '2122', fields=fields)])
     df = pd.concat([df, load_dataset(country, '2223', fields=fields)])
+    df = pd.concat([df, load_dataset(country, '2324', fields=fields)])
     return corrected(df)
 
 
@@ -68,6 +69,7 @@ def load_france(fields=cfg.FIELDS):
 
 
 def load_country(country='greece', fields=cfg.FIELDS):
+    # sourcery skip: raise-specific-error
     ''' ### Load country proxy function
 
         Parameters:
@@ -133,7 +135,7 @@ def team_stats(team_dfs, sort_by='current_period_pts', verbose=0):
                 period + '_gf': int(gf),
                 period + '_ga': int(ga),
             })
-        df = pd.concat([df, pd.DataFrame([team_dict])])
+        df = pd.concat([df, pd.DataFrame([team_dict])], sort=True)
         df['c_prob'] = df.apply(lambda row: calc_c_prob(row), axis=1)
         if verbose > 1:
             print(team_dict)

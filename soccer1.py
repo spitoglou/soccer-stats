@@ -11,7 +11,7 @@ import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
-# import numpy as np
+# !import numpy as np
 
 
 def country_df_properties(df):
@@ -83,7 +83,7 @@ def update_local_handout():
         stats['link'] = stats.apply(lambda row: make_link(row), axis=1)
         stats, columns_to_show = country_df_properties(stats)
         # Remove teams with 0 points
-        stats = stats[stats.PTS > 0]
+        # stats = stats[stats.PTS > 0]
         country_doc.add_html(stats.to_html(
             columns=columns_to_show, escape=False))
 
@@ -119,7 +119,7 @@ def update_local_handout():
             try:  # because there were countries with few stats in the time of codeing
                 team_doc = frequency_graphs(team_doc, country, [team])
             except statistics.StatisticsError as e:
-                logger.exception(e)
+                logger.warning(e)
             team_doc.show()
             # logger.info('Finished')
     logger.info('Finished All Countries and Teams')
