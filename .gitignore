@@ -5,3 +5,4 @@ test.html
 .ipynb_checkpoints
 handout/
 handout.zip
+*.xlsx
