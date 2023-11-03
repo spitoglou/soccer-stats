@@ -12,7 +12,7 @@ def corrected(df):
     return df
 
 
-def load_dataset(country, period, dateparser=dateparser1819, fields=cfg.FIELDS):
+def load_dataset(country: str, period: str, dateparser: callable = dateparser1819, fields: list = cfg.FIELDS) -> pd.DataFrame:
     ''' ### Load csv data from remote site.
 
         Parameters:
@@ -21,9 +21,16 @@ def load_dataset(country, period, dateparser=dateparser1819, fields=cfg.FIELDS):
             period (str): championship start-end years (eg "1920" fror 2019-2020 period)
             dateparser (function): choose the way to parse the dates
                 (some csv files have dd/dd/yyyy and others dd/mm/yy)
+            fields (list): list of fields to include in the loaded dataset
     '''
-    load = pd.read_csv('https://www.football-data.co.uk/mmz4281/' + period + '/' + cfg.COUNTRIES[country] + '.csv',
-                       parse_dates=['Date'], index_col='Date', date_parser=dateparser)
+    load = pd.read_csv(
+        f'https://www.football-data.co.uk/mmz4281/{period}/'
+        + cfg.COUNTRIES[country]
+        + '.csv',
+        parse_dates=['Date'],
+        index_col='Date',
+        date_parser=dateparser,
+    )
     df = load[fields].copy()
     df['period'] = period
     return df
