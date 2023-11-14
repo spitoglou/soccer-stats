@@ -143,14 +143,14 @@ class Team_Simulation:
 
 
 if __name__ == "__main__":
-    countries = ["greece", "italy"]
-    periods = ["2021", "2122"]
+    countries = ["germany", "greece", "italy"]
+    periods = ["1920", "2021", "2122", "2223"]
     threshold_options = [3, 4, 5, 6]
     bet_span_options = [3, 4, 5, 6, 7, 8, 9, 10]
 
     bet_progr = [2, 4, 6, 9, 13, 20, 30, 45, 68, 103]
 
-    test = True
+    test = False
 
     if test:
         countries = ["greece"]
@@ -158,7 +158,7 @@ if __name__ == "__main__":
         threshold_options = [3]
         bet_span_options = [4]
 
-    abandon = False
+    # abandon = False
     verbose = True
 
     total_bet = 0
@@ -169,67 +169,84 @@ if __name__ == "__main__":
         stats_df, team_df = stats_dataframe(country)
         for threshold in threshold_options:
             for bet_span in bet_span_options:
-                for period in ["2021", "2122"]:
-                    for _, team_row in stats_df.iterrows():
-                        print(team_row.name)
-                        team = team_row.name
-                        simulation = Team_Simulation(
-                            str(team),
-                            team_df,
-                            period,
-                            bet_progr,
-                            threshold,
-                            bet_span,
-                            verbose=verbose,
-                            abandon_on_first_bucket=abandon,
-                        )
-                        simulation.run()
-                        
-                        team_bet = simulation.team_bet
-                        team_wins = simulation.team_wins
-                        cash_flow = simulation.cash_flow
-                        try:
-                            meta_cash_flow = cash_flow_meta(cash_flow)
-                        except Exception as e:
-                            print(e)
-                            meta_cash_flow = []
-                        print(f"Team bet: {team_bet}")
-                        print(f"Team wins: {team_wins}")
-                        print(f"Cash Flow: {cash_flow}")
-                        total_bet = total_bet + team_bet
-                        total_wins = total_wins + team_wins
+                for period in periods:
+                    for mode in ['normal', 'restart', 'abandon']:
+                        for _, team_row in stats_df.iterrows():
+                            print(team_row.name)
+                            team = team_row.name
+                            
+                            if mode == 'abandon':
+                                abandon = True
+                                restart = False
+                            elif mode == 'restart':
+                                abandon = False
+                                restart = True
+                            else:
+                                abandon = False
+                                restart = False
+                                
+                            simulation = Team_Simulation(
+                                str(team),
+                                team_df,
+                                period,
+                                bet_progr,
+                                threshold,
+                                bet_span,
+                                verbose=verbose,
+                                abandon_on_first_bucket=abandon,
+                                restart_after_bucket=restart,
+                            )
+                            simulation.run()
+                            
+                            team_bet = simulation.team_bet
+                            team_wins = simulation.team_wins
+                            cash_flow = simulation.cash_flow
+                            try:
+                                meta_cash_flow = cash_flow_meta(cash_flow)
+                            except Exception as e:
+                                print(e)
+                                meta_cash_flow = []
+                            print(f"Team bet: {team_bet}")
+                            print(f"Team wins: {team_wins}")
+                            print(f"Cash Flow: {cash_flow}")
+                            total_bet = total_bet + team_bet
+                            total_wins = total_wins + team_wins
 
-                        # TODO: Here we need to calculate min and max cumulative cash flow
+                            # TODO: Here we need to calculate min and max cumulative cash flow
 
-                        team_result.append(
+                            team_result.append(
+                                {
+                                    "country": country,
+                                    "period": period,
+                                    "mode": mode,
+                                    "bet_progression": bet_progr,
+                                    "threshold": threshold,
+                                    "span": bet_span,
+                                    "team": team,
+                                    "bet": team_bet,
+                                    "wins": team_wins,
+                                    "cash_flow_meta": meta_cash_flow,
+                                    "cash_flow": cash_flow,
+                                }
+                            )
+
+                        print(f"Total bet: {total_bet}")
+                        print(f"Total wins: {total_wins}")
+                        # print(f'Cash Flow: {cash_flow}')
+                        period_result.append(
                             {
                                 "country": country,
                                 "period": period,
+                                "mode": mode,
+                                "bet_progression": bet_progr,
                                 "threshold": threshold,
                                 "span": bet_span,
-                                "team": team,
-                                "bet": team_bet,
-                                "wins": team_wins,
-                                "cash_flow_meta": meta_cash_flow,
-                                "cash_flow": cash_flow,
+                                "total_bet": total_bet,
+                                "total_wins": total_wins,
                             }
                         )
-
-                    print(f"Total bet: {total_bet}")
-                    print(f"Total wins: {total_wins}")
-                    # print(f'Cash Flow: {cash_flow}')
-                    period_result.append(
-                        {
-                            "country": country,
-                            "period": period,
-                            "threshold": threshold,
-                            "span": bet_span,
-                            "total_bet": total_bet,
-                            "total_wins": total_wins,
-                        }
-                    )
-                    total_bet = 0
-                    total_wins = 0
+                        total_bet = 0
+                        total_wins = 0
     print(team_result)
     print(period_result)
     pd.DataFrame.from_dict(team_result).to_excel('team.xlsx')
