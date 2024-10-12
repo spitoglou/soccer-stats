@@ -1,4 +1,4 @@
-PERIODS = ['1718', '1819', '1920', '2021', '2122', '2223', '2324']
+PERIODS = ['1718', '1819', '1920', '2021', '2122', '2223', '2324', '2425']
 COUNTRIES = {
     'Greece': 'G1',
     'England': 'E0',
@@ -8,6 +8,6 @@ COUNTRIES = {
     'France': 'F1'
 }
 FIELDS = ['HomeTeam', 'AwayTeam', 'FTR', 'FTHG', 'FTAG', 'B365D']
-CURRENT_PERIOD = '2324'
+CURRENT_PERIOD = '2425'
 
 NEXT_MATCHES = 5

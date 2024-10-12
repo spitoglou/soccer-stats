@@ -48,6 +48,7 @@ def country_dataframe(country: str, fields: list) -> pd.DataFrame:
     df = pd.concat([df, load_dataset(country, '2122', fields=fields)])
     df = pd.concat([df, load_dataset(country, '2223', fields=fields)])
     df = pd.concat([df, load_dataset(country, '2324', fields=fields)])
+    df = pd.concat([df, load_dataset(country, '2425', fields=fields)])
     return corrected(df)
 
 
