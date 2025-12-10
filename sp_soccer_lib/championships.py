@@ -38,17 +38,14 @@ def load_dataset(
 
 
 def country_dataframe(country: str, fields: list) -> pd.DataFrame:
-    df: pd.DataFrame = load_dataset(country, "1819", fields=fields)
-    if country == "England":
-        df = pd.concat([df, load_dataset(country, "1718", fields=fields)])
-    else:
-        df = pd.concat([df, load_dataset(country, "1718", dateparser1718, fields=fields)])
-    df = pd.concat([df, load_dataset(country, "1920", fields=fields)])
-    df = pd.concat([df, load_dataset(country, "2021", fields=fields)])
-    df = pd.concat([df, load_dataset(country, "2122", fields=fields)])
-    df = pd.concat([df, load_dataset(country, "2223", fields=fields)])
-    df = pd.concat([df, load_dataset(country, "2324", fields=fields)])
-    df = pd.concat([df, load_dataset(country, "2425", fields=fields)])
+    """Load all periods for a country using cfg.PERIODS."""
+    dfs = []
+    for period in cfg.PERIODS:
+        if period == "1718" and country != "England":
+            dfs.append(load_dataset(country, period, dateparser1718, fields=fields))
+        else:
+            dfs.append(load_dataset(country, period, fields=fields))
+    df = pd.concat(dfs)
     return corrected(df)
 
 
