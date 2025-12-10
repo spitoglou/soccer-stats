@@ -2,11 +2,11 @@
 import statistics
 from collections import Counter
 
-import handout
 import matplotlib
 import pandas as pd
 from loguru import logger
 
+import handout
 from config import CURRENT_PERIOD
 from sp_soccer_lib import championship_teams, create_team_df_dict, no_draw_frequencies
 from sp_soccer_lib.championships import load_country, team_stats
@@ -39,7 +39,9 @@ def country_df_properties(df):
         "CurrentNoDraw",
         "MaxNoDraw",
         "B365D_mean",
+        "p_draw",
         "c_prob",
+        "c_prob_adj",
         "link",
     ]
     return df, columns_to_show

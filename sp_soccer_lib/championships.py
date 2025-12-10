@@ -108,6 +108,45 @@ def calc_c_prob(row):
     return cumulative_binomial_probabilities(matches, 1, mean_probability)[3]
 
 
+def calc_c_prob_adj(row):
+    """Calculate probability of at least 1 draw in next N matches.
+
+    Uses fixed NEXT_MATCHES window (no Gambler's Fallacy adjustment)
+    and current period draw rate instead of betting odds.
+
+    Returns:
+        float: P(X >= 1) where X ~ Binomial(NEXT_MATCHES, p_draw), or None if p_draw unavailable
+    """
+    from .probabilities import cumulative_binomial_probabilities
+
+    p_draw = row.get("p_draw")
+    if p_draw is None or pd.isna(p_draw):
+        return None
+
+    matches = cfg.NEXT_MATCHES
+    return round(cumulative_binomial_probabilities(matches, 1, p_draw)[3], 4)
+
+
+def calc_period_draw_rate(team_df, period):
+    """Calculate draw rate for a team in a specific period.
+
+    Parameters:
+        team_df: DataFrame with team's matches
+        period: Period string (e.g., "2526")
+
+    Returns:
+        float: Draw rate (draws/matches) or None if no matches in period
+    """
+    period_matches = team_df[team_df["period"] == period]
+    total_matches = len(period_matches)
+
+    if total_matches == 0:
+        return None
+
+    draws = len(period_matches[period_matches["result"] == "D"])
+    return round(draws / total_matches, 4)
+
+
 def team_stats(team_dfs, sort_by="current_period_pts", verbose=0):
     """### Cumulative team stats for all available periods
 
@@ -134,6 +173,7 @@ def team_stats(team_dfs, sort_by="current_period_pts", verbose=0):
                 "MaxNoDraw": int(a["count_no_draw"].max()),
                 "CurrentNoDraw": int(a.iloc[-1, :]["count_no_draw"]),
                 "B365D_mean": a["B365D"].mean(),
+                "p_draw": calc_period_draw_rate(a, cfg.CURRENT_PERIOD),
             }
         )
         for period in cfg.PERIODS:
@@ -150,6 +190,7 @@ def team_stats(team_dfs, sort_by="current_period_pts", verbose=0):
             )
         df = pd.concat([df, pd.DataFrame([team_dict])], sort=True)
         df["c_prob"] = df.apply(lambda row: calc_c_prob(row), axis=1)
+        df["c_prob_adj"] = df.apply(lambda row: calc_c_prob_adj(row), axis=1)
         if verbose > 1:
             print(team_dict)
     df.set_index("Name", inplace=True)
