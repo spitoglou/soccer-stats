@@ -9,3 +9,5 @@ handout.zip
 
 # Virtual environment (UV creates this)
 .venv/
+
+!results_to_keep/*
