@@ -1,6 +1,7 @@
 import numpy as np
 
-def cash_flow_meta(cash_flow:list):
+
+def cash_flow_meta(cash_flow: list):
     cumulative = np.cumsum(cash_flow)
     print(cumulative)
     min_cum = np.min(cumulative)
@@ -10,11 +11,9 @@ def cash_flow_meta(cash_flow:list):
 
 
 class Simulation:
-    
     def __init__(self):
         pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     cash_flow_meta([-2, -4, -6, 28.5, -2, -4, -6, 21.0, -2, -4, -6, 20.4, -2, 6.4])
-    
-    

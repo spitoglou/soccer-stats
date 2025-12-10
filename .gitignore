@@ -6,3 +6,6 @@ test.html
 handout/
 handout.zip
 *.xlsx
+
+# Virtual environment (UV creates this)
+.venv/

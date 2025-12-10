@@ -1,4 +1,3 @@
-# -*- coding: utf8 -*-
 '''
 Stavros: Adapted it from here:
 https://stackoverflow.com/questions/5663787/upload-folders-from-local-system-to-ftp-using-python-script
@@ -20,8 +19,9 @@ walk = True/False
 '''
 import ftplib
 import os
-import time
 import socket
+import time
+
 from loguru import logger
 
 __revision__ = 1.11
@@ -29,7 +29,7 @@ __revision__ = 1.11
 SLEEP_SECONDS = 1
 
 
-class FtpAddOns():
+class FtpAddOns:
     PATH_CACHE = []
 
     def __init__(self, ftp_h):
@@ -196,9 +196,9 @@ def upload_all(server,
         except socket.gaierrora as e:
             logger.exception('ERROR -- Could not connect to (%s): %s' %
                              (server, str(e.args)))
-        except IOError as e:
+        except OSError as e:
             logger.exception('ERROR -- File not found: %s' % (str(e.args)))
-        except socket.error as e:
+        except OSError as e:
             logger.exception('ERROR -- Could not connect to (%s): %s' %
                              (server, str(e.args)))
 
