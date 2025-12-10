@@ -2,7 +2,10 @@ import pandas as pd
 
 import config as cfg
 from sp_soccer_lib import period_stats
-from sp_soccer_lib.date_parsers import dateparser1718, dateparser1819
+
+# Date formats for football-data.co.uk CSV files
+DATE_FORMAT_YYYY = "%d/%m/%Y"  # Used for 1819 onwards
+DATE_FORMAT_YY = "%d/%m/%y"  # Used for 1718 (non-England)
 
 
 def corrected(df):
@@ -14,23 +17,23 @@ def corrected(df):
 
 
 def load_dataset(
-    country: str, period: str, dateparser: callable = dateparser1819, fields: list = cfg.FIELDS
+    country: str, period: str, date_format: str = DATE_FORMAT_YYYY, fields: list = cfg.FIELDS
 ) -> pd.DataFrame:
     """### Load csv data from remote site.
 
     Parameters:
 
         country (str): country to load data from
-        period (str): championship start-end years (eg "1920" fror 2019-2020 period)
-        dateparser (function): choose the way to parse the dates
-            (some csv files have dd/dd/yyyy and others dd/mm/yy)
+        period (str): championship start-end years (eg "1920" for 2019-2020 period)
+        date_format (str): strptime format string for parsing dates
+            (some csv files have dd/mm/yyyy and others dd/mm/yy)
         fields (list): list of fields to include in the loaded dataset
     """
     load = pd.read_csv(
         f"https://www.football-data.co.uk/mmz4281/{period}/" + cfg.COUNTRIES[country] + ".csv",
         parse_dates=["Date"],
         index_col="Date",
-        date_parser=dateparser,
+        date_format=date_format,
     )
     df = load[fields].copy()
     df["period"] = period
@@ -42,7 +45,7 @@ def country_dataframe(country: str, fields: list) -> pd.DataFrame:
     dfs = []
     for period in cfg.PERIODS:
         if period == "1718" and country != "England":
-            dfs.append(load_dataset(country, period, dateparser1718, fields=fields))
+            dfs.append(load_dataset(country, period, DATE_FORMAT_YY, fields=fields))
         else:
             dfs.append(load_dataset(country, period, fields=fields))
     df = pd.concat(dfs)
