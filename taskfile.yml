@@ -1,0 +1,8 @@
+version: '3'
+
+tasks:
+  hello:
+    vars:
+      MESSAGE: 'Hello, World!'
+    cmds:
+      - 'echo {{.MESSAGE}}'
