@@ -1,9 +1,0 @@
-autopep8==2.0.4
-flake8==6.1.0
-handout==1.1.2
-ipython==8.16.1
-loguru==0.7.2
-ipykernel==6.25.2
-numpy==1.26.1
-pandas==2.1.1
-openpyxl==3.1.2

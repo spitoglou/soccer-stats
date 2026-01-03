@@ -5,15 +5,14 @@ Copyright 2014 Allen B. Downey
 License: GNU GPLv3 http://www.gnu.org/licenses/gpl.html
 """
 
-from __future__ import print_function
 
 import math
+import warnings
+
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
-import warnings
 
 # customize some matplotlib attributes
 # matplotlib.rc('figure', figsize=(4, 3))
@@ -29,7 +28,7 @@ import warnings
 # matplotlib.rc('ytick.minor', size=3.0)
 
 
-class _Brewer(object):
+class _Brewer:
     """Encapsulates a nice sequence of colors.
 
     Shades of blue that look good in color and can be distinguished

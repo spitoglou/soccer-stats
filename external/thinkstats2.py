@@ -1,5 +1,5 @@
-from __future__ import print_function, division
 import bisect
+import builtins
 import copy
 import logging
 import math
@@ -7,15 +7,15 @@ import random
 import re
 from collections import Counter
 from operator import itemgetter
-import external.thinkplot as thinkplot
+
 import numpy as np
 import pandas
 import scipy
-from scipy import stats
-from scipy import special
-from scipy import ndimage
+from scipy import ndimage, special, stats
 from scipy.special import gamma
-from io import open
+
+import external.thinkplot as thinkplot
+
 ROOT2 = math.sqrt(2)
 
 
@@ -68,7 +68,7 @@ def Probability2(yes, no):
     return yes / (yes + no)
 
 
-class Interpolator(object):
+class Interpolator:
     """Represents a mapping between sorted sequences; performs linear interp.
 
     Attributes:
@@ -105,7 +105,7 @@ class Interpolator(object):
 DEFAULT_LABEL = '_nolegend_'
 
 
-class _DictWrapper(object):
+class _DictWrapper:
     """An object that contains a dictionary."""
 
     def __init__(self, obj=None, label=None):
@@ -1515,7 +1515,7 @@ def MakeSuiteFromDict(d, label=None):
     return suite
 
 
-class Pdf(object):
+class Pdf:
     """Represents a probability density function (PDF)."""
 
     def Density(self, x):
@@ -2229,7 +2229,7 @@ class Beta:
         return xs
 
 
-class Dirichlet(object):
+class Dirichlet:
     """Represents a Dirichlet distribution.
 
     See http://en.wikipedia.org/wiki/Dirichlet_distribution
@@ -2773,7 +2773,7 @@ def PearsonMedianSkewness(xs):
     return gp
 
 
-class FixedWidthVariables(object):
+class FixedWidthVariables:
     """Represents a set of variables in a fixed width file."""
 
     def __init__(self, variables, index_base=0):
@@ -2821,7 +2821,7 @@ def ReadStataDct(dct_file, **options):
                     double=float, numeric=float)
 
     var_info = []
-    with open(dct_file, **options) as f:
+    with builtins.open(dct_file, **options) as f:
         for line in f:
             match = re.search(r'_column\(([^)]*)\)', line)
             if not match:
@@ -2946,7 +2946,7 @@ def Smooth(xs, sigma=2, **options):
     return ndimage.filters.gaussian_filter1d(xs, sigma, **options)
 
 
-class HypothesisTest(object):
+class HypothesisTest:
     """Represents a hypothesis test."""
 
     def __init__(self, data):

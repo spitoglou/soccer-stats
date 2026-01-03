@@ -2,10 +2,12 @@ import bisect
 import copy
 import logging
 import math
-import numpy
 import random
+
+import numpy
 import scipy.stats
 from scipy.special import erf, erfinv
+
 ROOT2 = math.sqrt(2)
 
 
@@ -58,7 +60,7 @@ def Probability2(yes, no):
     return float(yes) / (yes + no)
 
 
-class Interpolator(object):
+class Interpolator:
     """Represents a mapping between sorted sequences; performs linear interp.
 
     Attributes:
@@ -90,7 +92,7 @@ class Interpolator(object):
         return y
 
 
-class _DictWrapper(object):
+class _DictWrapper:
     """An object that contains a dictionary."""
 
     def __init__(self, values=None, name=''):
@@ -838,7 +840,7 @@ def MakeUniformPmf(low, high, n):
     return pmf
 
 
-class Cdf(object):
+class Cdf:
     """Represents a cumulative distribution function.
 
     Attributes:
@@ -1296,7 +1298,7 @@ def MakeSuiteFromCdf(cdf, name=None):
     return suite
 
 
-class Pdf(object):
+class Pdf:
     """Represents a probability density function (PDF)."""
 
     def Density(self, x):
@@ -1622,7 +1624,7 @@ def GaussianCdfInverse(p, mu=0, sigma=1):
     return mu + x * sigma
 
 
-class Beta(object):
+class Beta:
     """Represents a Beta distribution.
 
     See http://en.wikipedia.org/wiki/Beta_distribution
@@ -1693,7 +1695,7 @@ class Beta(object):
         return cdf
 
 
-class Dirichlet(object):
+class Dirichlet:
     """Represents a Dirichlet distribution.
 
     See http://en.wikipedia.org/wiki/Dirichlet_distribution

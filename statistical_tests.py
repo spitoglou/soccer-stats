@@ -9,7 +9,7 @@
 # import pprint as pp
 # import pandas as pd
 
-'''
+"""
 next_matches = 7
 
 
@@ -47,8 +47,4 @@ for val in sorted(hist.Values()):
 
 thinkplot.Hist(hist)
 thinkplot.Show(xlabel='value', ylabel='frequency')
-'''
-
-from external.thinkbayes import Pmf
-
-
+"""

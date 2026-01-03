@@ -1,11 +1,10 @@
-from config import CURRENT_PERIOD
-from sp_soccer_lib import create_team_df_dict, championship_teams, no_draw_frequencies
-from sp_soccer_lib.handout_helpers import style, get_country_header, make_link
-from sp_soccer_lib.championships import team_stats, load_country
-from sp_soccer_lib.simulation import cash_flow_meta
 import math
+
 import numpy as np
 import pandas as pd
+
+from sp_soccer_lib import create_team_df_dict
+from sp_soccer_lib.championships import load_country, team_stats
 
 
 def cash_flow_meta(cash_flow: list):
@@ -14,7 +13,7 @@ def cash_flow_meta(cash_flow: list):
     min_cum = np.min(cumulative)
     max_cum = np.max(cumulative)
     print(min_cum, max_cum)
-    return [min_cum, max_cum] 
+    return [min_cum, max_cum]
 
 
 def stats_dataframe(country):
@@ -35,7 +34,7 @@ class Team_Simulation:
         fixed_odds: int = 3,
         verbose: bool = False,
         abandon_on_first_bucket=False,
-        restart_after_bucket=True
+        restart_after_bucket=True,
     ):
         self.team = team
         self.country_team_df = country_team_df
@@ -47,34 +46,39 @@ class Team_Simulation:
         self.verbose = verbose
         self.abandon_on_first_bucket = abandon_on_first_bucket
         self.restart_after_bucket = restart_after_bucket
-        
-        
+
     def get_matches_df(self):
         team_matches_df = self.country_team_df[self.team]
-        team_matches_df = team_matches_df[team_matches_df['period'] == self.period]
+        team_matches_df = team_matches_df[team_matches_df["period"] == self.period]
         if self.verbose:
             print(team_matches_df.head())
-            print(f'Matches in this period: {team_matches_df.shape[0]}')
+            print(f"Matches in this period: {team_matches_df.shape[0]}")
             self.period_matches = team_matches_df.shape[0]
         return team_matches_df
-    
+
     def get_odds(self):
-        return self.fixed_odds if math.isnan(self.current_match["B365D"]) else self.current_match["B365D"]
-    
+        return (
+            self.fixed_odds
+            if math.isnan(self.current_match["B365D"])
+            else self.current_match["B365D"]
+        )
+
     def print_match_details(self):
-        print('--------------------------------')
-        print(f'[{self.match_index}][{self.match_date}] Match is {self.current_match["HomeTeam"]}-{self.current_match["AwayTeam"]}. Draw gives {self.get_odds()}. Result for {self.team} is {self.current_match["result"]}')
-        print('--------------------------------')
-    
+        print("--------------------------------")
+        print(
+            f"[{self.match_index}][{self.match_date}] Match is {self.current_match['HomeTeam']}-{self.current_match['AwayTeam']}. Draw gives {self.get_odds()}. Result for {self.team} is {self.current_match['result']}"
+        )
+        print("--------------------------------")
+
     def print_bet(self):
         if self.next_bet:
-            print(f'!!! This is bet No {self.next_bet}. Betting {self.calculate_bet()} Eur.  !!!')
+            print(f"!!! This is bet No {self.next_bet}. Betting {self.calculate_bet()} Eur.  !!!")
         else:
-            print('!!! No bet this time !!!')
-            
+            print("!!! No bet this time !!!")
+
     def calculate_bet(self):
-        return self.bet_progr[(self.next_bet-1) % self.bet_span]
-        
+        return self.bet_progr[(self.next_bet - 1) % self.bet_span]
+
     def run(self):
         team_matches_df = self.get_matches_df()
 
@@ -93,47 +97,49 @@ class Team_Simulation:
             if self.abandon_on_first_bucket and over_threshold:
                 print("Discarding Team Because Abandon Option is Enabled")
                 break
-            
+
             if self.verbose:
                 self.print_match_details()
-            
+
             odds = self.get_odds()
-            
-            
+
             if self.next_bet:
                 bet = self.calculate_bet()
                 self.team_bet = self.team_bet + bet
                 self.cash_flow.append(-1 * bet)
-            
+
             if self.verbose:
                 self.print_bet()
-            
-            if match['FTR'] == 'D':
+
+            if match["FTR"] == "D":
                 if self.next_bet:
                     winnings = bet * odds
                     if verbose:
-                        print(f'Colourful Ballons!!! We retrieve {winnings}')
+                        print(f"Colourful Ballons!!! We retrieve {winnings}")
                     self.team_wins = self.team_wins + winnings
                     self.cash_flow.append(winnings)
                 self.next_bet = 0
             else:
-                if match['count_no_draw'] >= self.threshold + self.bet_span:
+                if match["count_no_draw"] >= self.threshold + self.bet_span:
                     over_threshold = True
                 else:
                     over_threshold = False
-                match_in_main_betting_span = match['count_no_draw'] >= self.threshold and match['count_no_draw'] < self.threshold + self.bet_span
+                match_in_main_betting_span = (
+                    match["count_no_draw"] >= self.threshold
+                    and match["count_no_draw"] < self.threshold + self.bet_span
+                )
                 if match_in_main_betting_span or (self.restart_after_bucket and over_threshold):
-                    self.next_bet = match['count_no_draw'] - self.threshold + 1
+                    self.next_bet = match["count_no_draw"] - self.threshold + 1
                     # if self.next_bet < 0:
                     #     self.next_bet = 0
-                        
+
                 else:
                     self.next_bet = 0
-                    
-            print(f'Variable next_bet: {self.next_bet}')    
-                    # abandon = True
 
-                    # print('!!!!!BET!!!!!!')
+            print(f"Variable next_bet: {self.next_bet}")
+            # abandon = True
+
+            # print('!!!!!BET!!!!!!')
             # if row['count_no_draw'] == threshold:
             #     next_bet = 1
 
@@ -170,21 +176,21 @@ if __name__ == "__main__":
         for threshold in threshold_options:
             for bet_span in bet_span_options:
                 for period in periods:
-                    for mode in ['normal', 'restart', 'abandon']:
+                    for mode in ["normal", "restart", "abandon"]:
                         for _, team_row in stats_df.iterrows():
                             print(team_row.name)
                             team = team_row.name
-                            
-                            if mode == 'abandon':
+
+                            if mode == "abandon":
                                 abandon = True
                                 restart = False
-                            elif mode == 'restart':
+                            elif mode == "restart":
                                 abandon = False
                                 restart = True
                             else:
                                 abandon = False
                                 restart = False
-                                
+
                             simulation = Team_Simulation(
                                 str(team),
                                 team_df,
@@ -197,7 +203,7 @@ if __name__ == "__main__":
                                 restart_after_bucket=restart,
                             )
                             simulation.run()
-                            
+
                             team_bet = simulation.team_bet
                             team_wins = simulation.team_wins
                             cash_flow = simulation.cash_flow
@@ -249,5 +255,5 @@ if __name__ == "__main__":
                         total_wins = 0
     print(team_result)
     print(period_result)
-    pd.DataFrame.from_dict(team_result).to_excel('team.xlsx')
-    pd.DataFrame.from_dict(period_result).to_excel('period.xlsx')
+    pd.DataFrame.from_dict(team_result).to_excel("team.xlsx")
+    pd.DataFrame.from_dict(period_result).to_excel("period.xlsx")
