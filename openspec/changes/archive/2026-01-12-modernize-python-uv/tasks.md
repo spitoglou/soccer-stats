@@ -31,8 +31,8 @@
 - [x] 5.1 Run test suite with Python 3.13 (`uv run pytest`)
 - [x] 5.2 Fix any deprecation warnings or breaking changes
 - [x] 5.3 Verify Flask app starts correctly
-- [ ] 5.4 Verify HTML report generation works
-- [ ] 5.5 Verify data loading from football-data.co.uk
+- [x] 5.4 Verify HTML report generation works
+- [x] 5.5 Verify data loading from football-data.co.uk
 
 ## 6. Cleanup and Documentation
 - [x] 6.1 Remove `requirements.txt` (after confirming migration)
@@ -45,4 +45,4 @@
 - [x] 7.2 Linting passes (`uv run ruff check .`)
 - [x] 7.3 Formatting is consistent (`uv run ruff format --check .`)
 - [x] 7.4 Flask API runs successfully
-- [ ] 7.5 Report generation works end-to-end
+- [x] 7.5 Report generation works end-to-end

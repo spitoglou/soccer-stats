@@ -1,8 +1,8 @@
 # Statistics Specification
 
-## Overview
+## Purpose
 
-This specification documents the probability and draw-related calculations used in the soccer analytics platform.
+Documents the probability and draw-related calculations used in the soccer analytics platform for predicting match outcomes and analyzing team performance.
 
 ## Requirements
 
