@@ -10,4 +10,7 @@ handout.zip
 # Virtual environment (UV creates this)
 .venv/
 
+# Environment variables
+.env
+
 !results_to_keep/*

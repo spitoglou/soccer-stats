@@ -271,10 +271,13 @@ def upload_all(server,
 
 
 if __name__ == '__main__':
+    from dotenv import load_dotenv
 
-    server = 'spitoglou.byethost9.com'
-    username = 'spitoglo'
-    remote_dir = '/soccerstats.csl.gr'
+    load_dotenv()
+
+    server = os.environ.get('FTP_SERVER', 'spitoglou.byethost9.com')
+    username = os.environ.get('FTP_USERNAME', 'spitoglo')
+    remote_dir = os.environ.get('FTP_REMOTE_DIR', '/soccerstats.csl.gr')
     encrypt = False
     monitor = False
     walk = True
@@ -282,8 +285,7 @@ if __name__ == '__main__':
 
     local_dir = 'handout'
 
-    # get the user password
-    p = 'nn437wOh3P'
+    p = os.environ['FTP_PASSWORD']
 
     if monitor:
         try:
