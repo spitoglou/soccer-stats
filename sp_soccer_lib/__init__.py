@@ -33,34 +33,35 @@ def create_team_df_dict(dataframe):
 
 
 def update_results(team_df, team):
-    results = []
+    # Vectorized result calculation using np.select
+    is_home = team_df["HomeTeam"] == team
+    is_away = team_df["AwayTeam"] == team
+    ftr = team_df["FTR"]
 
-    for _index, row in team_df.iterrows():
-        if row["HomeTeam"] == team and row["FTR"] == "H":
-            results.append("W")
-        elif row["HomeTeam"] == team and row["FTR"] == "A":
-            results.append("L")
-        elif row["AwayTeam"] == team and row["FTR"] == "H":
-            results.append("L")
-        elif row["AwayTeam"] == team and row["FTR"] == "A":
-            results.append("W")
-        else:
-            results.append("D")
-    team_df["result"] = results
+    conditions = [
+        (is_home & (ftr == "H")),  # Home team wins at home
+        (is_home & (ftr == "A")),  # Home team loses at home
+        (is_away & (ftr == "H")),  # Away team loses (home wins)
+        (is_away & (ftr == "A")),  # Away team wins
+    ]
+    choices = ["W", "L", "L", "W"]
+
+    team_df["result"] = np.select(conditions, choices, default="D")
     return team_df
 
 
 def update_draw_streaks(team_df, verbose=0):
+    # Use itertuples() for ~10x speedup over iterrows()
     draw = []
     no_draw = []
 
     count = 1
     memory = "G"
     period_memory = "start"
-    for _index, row in team_df.iterrows():
-        if row["FTR"] == "D":
+    for row in team_df.itertuples():
+        if row.FTR == "D":
             no_draw.append(0)
-            if memory == "D" and row["period"] == period_memory:
+            if memory == "D" and row.period == period_memory:
                 count += 1
                 draw.append(count)
             else:
@@ -69,59 +70,77 @@ def update_draw_streaks(team_df, verbose=0):
                 count = 1
         else:
             draw.append(0)
-            if memory != "D" and row["period"] == period_memory:
+            if memory != "D" and row.period == period_memory:
                 count += 1
                 no_draw.append(count)
             else:
                 no_draw.append(1)
                 memory = "ND"
                 count = 1
-        period_memory = row["period"]
+        period_memory = row.period
     team_df["count_draw"] = draw
     team_df["count_no_draw"] = no_draw
     return team_df
 
 
-def calc_gf(row):
-    return row["FTHG"] if row["name"] == row["HomeTeam"] else row["FTAG"]
-
-
-def calc_ga(row):
-    return row["FTAG"] if row["name"] == row["HomeTeam"] else row["FTHG"]
-
-
 def period_stats(team_df, team_name, period="1920"):
-    wins = team_df.query('result == "W" and period == "' + period + '"').shape[0]
-    draws = team_df.query('result == "D" and period == "' + period + '"').shape[0]
-    losses = team_df.query('result == "L" and period == "' + period + '"').shape[0]
+    # Filter once for the period, then use value_counts() for W/D/L
+    period_df = team_df[team_df["period"] == period]
+    result_counts = period_df["result"].value_counts()
+    wins = result_counts.get("W", 0)
+    draws = result_counts.get("D", 0)
+    losses = result_counts.get("L", 0)
     points = wins * 3 + draws * 1
     # TODO: make this more dynamic
     if team_name == "Aris" and period == "2122":
         points = points - 6
         logger.info("Made Aris 2122 Adjustment")
-    team_df["name"] = team_name
-    team_df["GF"] = team_df.apply(lambda row: calc_gf(row), axis=1)
-    team_df["GA"] = team_df.apply(lambda row: calc_ga(row), axis=1)
-    gf = team_df.query('period == "' + period + '"')["GF"].sum()
-    ga = team_df.query('period == "' + period + '"')["GA"].sum()
+
+    # Vectorized GF/GA calculation using np.where
+    is_home = team_df["HomeTeam"] == team_name
+    team_df["GF"] = np.where(is_home, team_df["FTHG"], team_df["FTAG"])
+    team_df["GA"] = np.where(is_home, team_df["FTAG"], team_df["FTHG"])
+
+    gf = (
+        period_df["GF"].sum()
+        if "GF" in period_df.columns
+        else team_df.loc[period_df.index, "GF"].sum()
+    )
+    ga = (
+        period_df["GA"].sum()
+        if "GA" in period_df.columns
+        else team_df.loc[period_df.index, "GA"].sum()
+    )
     return (wins, draws, losses, points, gf, ga)
 
 
-def no_draw_frequencies(country, specific_teams=None):
+def no_draw_frequencies(country, specific_teams=None, team_dfs=None):
+    """Calculate no-draw frequency distribution.
+
+    Args:
+        country: Country name
+        specific_teams: Optional list of teams to process
+        team_dfs: Optional pre-computed team DataFrames (avoids redundant loading)
+    """
     from .championships import load_country
 
-    df = load_country(country)
-    team_dfs = create_team_df_dict(df)
+    if team_dfs is None:
+        df = load_country(country)
+        team_dfs = create_team_df_dict(df)
+        teams = specific_teams or championship_teams(df)
+    else:
+        teams = specific_teams or list(team_dfs.keys())
+
     no_draw_distribution = []
-    teams = specific_teams or championship_teams(df)
     for team in teams:
-        # pp.pprint(team_dfs[team])
+        if team not in team_dfs:
+            continue
         placeholder = "start"
-        for _index_label, row in team_dfs[team].iterrows():
+        # Use itertuples() for ~10x speedup over iterrows()
+        for row in team_dfs[team].itertuples():
             if placeholder == "start":
                 pass
-            elif row["result"] == "D":
+            elif row.result == "D":
                 no_draw_distribution.append(placeholder)
-            placeholder = row["count_no_draw"]
-    # pp.pprint(no_draw_distribution)
+            placeholder = row.count_no_draw
     return no_draw_distribution

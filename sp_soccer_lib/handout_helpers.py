@@ -16,10 +16,10 @@ def style():
         border-collapse: collapse;
     }
     th, td {
-        padding: 5px;
+        padding: 2px 4px;
         text-align: center;
         font-family: Helvetica, Arial, sans-serif;
-        font-size: 90%;
+        font-size: 75%;
     }
     table tbody tr:hover {
         background-color: #dddddd;
@@ -27,7 +27,7 @@ def style():
     .wide {
         width: 90%;
     }
-    centered: {
+    .centered {
         text-align: center;
     }
 
