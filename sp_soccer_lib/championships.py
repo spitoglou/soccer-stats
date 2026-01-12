@@ -163,7 +163,7 @@ def team_stats(team_dfs, sort_by="current_period_pts", verbose=0):
 
         (Pandas Dataframe): Team Stats
     """
-    df = pd.DataFrame()
+    rows = []
     for key, _value in team_dfs.items():
         team_dict = {"Name": key}
         a = team_dfs[key]
@@ -188,11 +188,17 @@ def team_stats(team_dfs, sort_by="current_period_pts", verbose=0):
                     period + "_ga": int(ga),
                 }
             )
-        df = pd.concat([df, pd.DataFrame([team_dict])], sort=True)
-        df["c_prob"] = df.apply(lambda row: calc_c_prob(row), axis=1)
-        df["c_prob_adj"] = df.apply(lambda row: calc_c_prob_adj(row), axis=1)
+        rows.append(team_dict)
         if verbose > 1:
             print(team_dict)
+
+    # Build DataFrame once from all rows (avoids repeated concat)
+    df = pd.DataFrame(rows)
+
+    # Vectorized probability calculations
+    df["c_prob"] = df.apply(calc_c_prob, axis=1)
+    df["c_prob_adj"] = df.apply(calc_c_prob_adj, axis=1)
+
     df.set_index("Name", inplace=True)
     if sort_by == "current_period_pts":
         df.sort_values(
