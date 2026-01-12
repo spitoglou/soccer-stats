@@ -12,8 +12,8 @@ dependencies = [
     "numpy>=2.0.0",
     "openpyxl>=3.1.2",
     "pandas>=2.2.0",
+    "python-dotenv>=1.0.0",
     "scipy>=1.14.0",
-    "sendgrid>=6.11.0",
 ]
 
 [dependency-groups]

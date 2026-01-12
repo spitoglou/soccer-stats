@@ -30,7 +30,7 @@ SLEEP_SECONDS = 1
 
 
 class FtpAddOns:
-    PATH_CACHE = []
+    PATH_CACHE = set()  # Use set for O(1) lookup instead of list O(N)
 
     def __init__(self, ftp_h):
         self.ftp_h = ftp_h
@@ -42,7 +42,7 @@ class FtpAddOns:
             try:
                 self.ftp_h.cwd(path)
                 exists = True
-                self.PATH_CACHE.append(path)
+                self.PATH_CACHE.add(path)  # Use add() for set
             except ftplib.error_perm as e:
                 if str(e.args).count('550'):
                     exists = False
@@ -193,11 +193,9 @@ def upload_all(server,
         try:
             ftp_h.connect(server)
             server_connect_ok = True
-        except socket.gaierrora as e:
+        except socket.gaierror as e:  # Fixed typo: gaierrora -> gaierror
             logger.exception('ERROR -- Could not connect to (%s): %s' %
                              (server, str(e.args)))
-        except OSError as e:
-            logger.exception('ERROR -- File not found: %s' % (str(e.args)))
         except OSError as e:
             logger.exception('ERROR -- Could not connect to (%s): %s' %
                              (server, str(e.args)))
@@ -241,9 +239,6 @@ def upload_all(server,
 
                     if continue_on:
                         if os.path.exists(filepath):
-                            f_h = open(filepath, 'rb')
-                            filename = os.path.split(f_h.name)[-1]
-
                             display_filename = os.path.join(
                                 remote_sub_path, filename)
                             display_filename = display_filename.replace(
@@ -252,9 +247,10 @@ def upload_all(server,
                             logger.info('Sending (%s) ...' %
                                         (display_filename),)
                             send_cmd = 'STOR %s' % (filename)
+                            # Use context manager to ensure file handle is closed
                             try:
-                                ftp_h.storbinary(send_cmd, f_h)
-                                f_h.close()
+                                with open(filepath, 'rb') as f_h:
+                                    ftp_h.storbinary(send_cmd, f_h)
                                 logger.success('Done!')
                             except Exception as e:
                                 logger.exception(str(e.args))
@@ -271,10 +267,13 @@ def upload_all(server,
 
 
 if __name__ == '__main__':
+    from dotenv import load_dotenv
 
-    server = 'spitoglou.byethost9.com'
-    username = 'spitoglo'
-    remote_dir = '/soccerstats.csl.gr'
+    load_dotenv()
+
+    server = os.environ.get('FTP_SERVER', 'spitoglou.byethost9.com')
+    username = os.environ.get('FTP_USERNAME', 'spitoglo')
+    remote_dir = os.environ.get('FTP_REMOTE_DIR', '/soccerstats.csl.gr')
     encrypt = False
     monitor = False
     walk = True
@@ -282,8 +281,7 @@ if __name__ == '__main__':
 
     local_dir = 'handout'
 
-    # get the user password
-    p = 'nn437wOh3P'
+    p = os.environ['FTP_PASSWORD']
 
     if monitor:
         try:

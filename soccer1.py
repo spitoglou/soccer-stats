@@ -68,8 +68,8 @@ def team_df_properties(df):
     return df, columns_to_show
 
 
-def frequency_graphs(doc, country, team=None):
-    series = no_draw_frequencies(country, team)
+def frequency_graphs(doc, country, team=None, team_dfs=None):
+    series = no_draw_frequencies(country, team, team_dfs=team_dfs)
     freq = Counter(series)
     doc.add_text(" ")
     doc.add_html(f'<p class="centered">Average: <b>{statistics.mean(series)}</b></p>')
@@ -113,7 +113,7 @@ def update_local_handout():
         # stats = stats[stats.PTS > 0]
         country_doc.add_html(stats.to_html(columns=columns_to_show, escape=False))
 
-        country_doc = frequency_graphs(country_doc, country)
+        country_doc = frequency_graphs(country_doc, country, team_dfs=team_dfs)
 
         country_doc.show()
         # logger.info('Finished')
@@ -142,7 +142,7 @@ def update_local_handout():
             team_doc.add_html(team_html)
 
             try:  # because there were countries with few stats in the time of codeing
-                team_doc = frequency_graphs(team_doc, country, [team])
+                team_doc = frequency_graphs(team_doc, country, [team], team_dfs=team_dfs)
             except statistics.StatisticsError as e:
                 logger.warning(e)
             team_doc.show()
